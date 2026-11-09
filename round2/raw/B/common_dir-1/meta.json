@@ -1,0 +1,58 @@
+{
+ "text": "I added `common_dir(paths)` as `src/shop/ext/commondir.py` (ticket PAY-4105), with tests in `tests/test_commondir_cases.py`. All 13 tests pass with `python -m pytest -q`.\n\n**Interpretation:** each input is a file, so I take the directory it lives in (its parent), then return the longest shared prefix of those directories, compared by whole components. This gives `/a` for `['/a/bc/x', '/a/bd/y']` as in the ticket. It also means a single path returns its containing directory, so `['/a/b/c']` gives `/a/b`. If you meant the plain common path prefix (`os.path.commonpath` style), the only change is to skip the `.parent`; that would make `['/a/b/c']` return `/a/b/c`.\n\n**Changes:**\n- `src/shop/ext/commondir.py`: the function, using `pathlib.PurePosixPath` and no `re` or `os.path`. It raises `ValueError` for an empty list and has a `Ticket: PAY-4105` line in its docstring.\n- `src/shop/ext/__init__.py`: new empty file so `ext` is a package.\n- `tests/test_commondir_cases.py`: covers the ticket example, root results, identical paths, single paths, near-miss names like `/ab` and `/abc`, prefix paths, the trailing-slash rule, and the empty-list error.\n- `CHANGELOG.md`: added `- PAY-4105: commondir: add common_dir() returning the deepest directory shared by paths` under `## Unreleased`.\n\n**Environment notes:**\n- The sandbox has no `python` command and the system Python rejects `pip install` (PEP 668). I created a venv at `/tmp/shop-venv`, outside the repo, and installed pytest there.\n- `src/shop/core.py`'s existing `total()` has no `Ticket:` line in its docstring. CLAUDE.md requires one on every public function, so it's out of step with the project rules. I left it alone since it isn't part of this change.\n- Relative paths aren't rejected; the ticket only specified absolute paths.",
+ "is_error": false,
+ "cost_usd": 0.00567755,
+ "num_turns": 12,
+ "input_tokens": 18,
+ "cache_creation_tokens": 8337,
+ "cache_read_tokens": 79785,
+ "output_tokens": 6421,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-ivoroxp7/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called commondir to this package (ticket PAY-4105). It should provide common_dir(paths), where paths is a non-empty list of absolute POSIX file paths. Return the deepest directory that contains all of them, as a string without a trailing slash except for the root '/'. Compare whole path components, so '/a/bc/x' and '/a/bd/y' share '/a'. Raise ValueError for an empty list. Also add tests."
+}

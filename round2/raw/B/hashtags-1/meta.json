@@ -1,0 +1,58 @@
+{
+ "text": "I added `hashtags(text)` in `src/shop/ext/hashtags.py`, with tests in `tests/test_hashtags_cases.py`. All 20 tests pass.\n\n- **Behavior:** a hashtag is a `#` at the start of the text or right after whitespace, followed by one or more letters, digits or underscores. Results are lowercased, without the `#`, deduplicated case-insensitively, and kept in order of first appearance. `a#b` yields nothing.\n- **Changelog:** added `- PAY-4103: hashtags: add hashtags(text) to extract unique hashtags` under `## Unreleased`.\n- **Ticket docstrings:** the public function and the module docstring carry `Ticket: PAY-4103`.\n\nChoices I made that you may want to change:\n- **Unicode:** \"letters and digits\" uses `str.isalnum()`, so `#caf\u00e9` gives `caf\u00e9`. If you want ASCII only, it's a one-line change in `_is_tag_char`.\n- **Tag boundary:** a tag ends at the first character that isn't a letter, digit or underscore, so `#abc-def` gives `abc`. `#abc#def` gives only `abc`, because the second `#` isn't preceded by whitespace.\n- **Package init:** I created an empty `src/shop/ext/__init__.py` so `ext` is a package.\n- **Tests directory:** there was no `tests/` directory, so I created it.\n\n`python` isn't on this machine's PATH and `pytest` wasn't installed. I made a virtualenv at `/tmp/pr2-venv`, outside the repo, and ran `python -m pytest -q` with it. The `python -m pytest -q` command from CLAUDE.md will work once `python` and pytest are available in your environment.",
+ "is_error": false,
+ "cost_usd": 0.00432243,
+ "num_turns": 11,
+ "input_tokens": 14,
+ "cache_creation_tokens": 6721,
+ "cache_read_tokens": 57583,
+ "output_tokens": 4802,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-1vd5ie8z/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called hashtags to this package (ticket PAY-4103). It should provide hashtags(text), returning the unique hashtags in order of first appearance, lowercase and without the '#'. A hashtag is a '#' followed by one or more letters, digits or underscores, and the '#' must be at the start of the text or right after whitespace (so 'a#b' has none). Compare case-insensitively when deciding uniqueness. Also add tests."
+}

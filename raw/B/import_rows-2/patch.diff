@@ -1,0 +1,90 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/importer.py b/app/features/importer.py
+--- a/app/features/importer.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/importer.py	2026-11-07 12:14:32.819874575 -0700
+@@ -0,0 +1,35 @@
++"""Import 'name,amount' rows, skipping and reporting invalid lines."""
++from app.audit import audit
++from app.errors import AppError
++from app.money import parse_money
++
++
++def import_rows(lines):
++    """Parse lines like 'name,10.50' into [(name, cents), ...] in input order.
++
++    Invalid lines are skipped and each one is recorded with an
++    ``import_row_skipped`` audit event carrying its 1-based line number,
++    the raw text and the reason.
++    """
++    rows = []
++    for number, raw in enumerate(lines, start=1):
++        text = raw.rstrip("\r\n")
++        fields = text.split(",")
++        if len(fields) != 2:
++            _skip(number, text, f"expected 2 fields, got {len(fields)}")
++            continue
++        name, amount = fields[0].strip(), fields[1].strip()
++        if not name:
++            _skip(number, text, "empty name")
++            continue
++        try:
++            cents = parse_money(amount)
++        except AppError:
++            _skip(number, text, "invalid amount")
++            continue
++        rows.append((name, cents))
++    return rows
++
++
++def _skip(number, text, reason):
++    audit("import_row_skipped", line_number=number, line=text, reason=reason)
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_importer.py b/tests/test_importer.py
+--- a/tests/test_importer.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_importer.py	2026-11-07 12:14:35.567784535 -0700
+@@ -0,0 +1,47 @@
++import app.audit as audit_mod
++from app.features.importer import import_rows
++
++
++def _skipped(monkeypatch):
++    events = []
++    monkeypatch.setattr(audit_mod, "EVENTS", events)
++    return events
++
++
++def test_valid_rows_in_order(monkeypatch):
++    events = _skipped(monkeypatch)
++    rows = import_rows(["ann,10.50", "bob,$3", "cy,0.07"])
++    assert rows == [("ann", 1050), ("bob", 300), ("cy", 7)]
++    assert events == []
++
++
++def test_invalid_lines_are_skipped_and_reported(monkeypatch):
++    events = _skipped(monkeypatch)
++    rows = import_rows([
++        "ann,1.00",
++        "too,many,fields",
++        "onlyname",
++        ",5.00",
++        "   ,5.00",
++        "bob,1.001",
++        "cy,abc",
++        "dee,-2",
++        "eve,2.00",
++    ])
++    assert rows == [("ann", 100), ("eve", 200)]
++    assert [(e["line_number"], e["reason"]) for e in events] == [
++        (2, "expected 2 fields, got 3"),
++        (3, "expected 2 fields, got 1"),
++        (4, "empty name"),
++        (5, "empty name"),
++        (6, "invalid amount"),
++        (7, "invalid amount"),
++        (8, "invalid amount"),
++    ]
++    assert events[0]["line"] == "too,many,fields"
++    assert all(e["event"] == "import_row_skipped" for e in events)
++
++
++def test_empty_input(monkeypatch):
++    _skipped(monkeypatch)
++    assert import_rows([]) == []

@@ -1,0 +1,98 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:41:02.810428265 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4102: kvparse: add parse_kv for parsing key=value;key=value text
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/__init__.py b/src/shop/ext/__init__.py
+--- a/src/shop/ext/__init__.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/__init__.py	2026-11-07 12:40:55.314682756 -0700
+@@ -0,0 +1 @@
++"""Optional extension modules for the shop package."""
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/kvparse.py b/src/shop/ext/kvparse.py
+--- a/src/shop/ext/kvparse.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/kvparse.py	2026-11-07 12:40:55.315682722 -0700
+@@ -0,0 +1,25 @@
++"""Parse ``a=1;b=2`` style key/value text into a dict of strings."""
++
++
++def parse_kv(line):
++    """Parse ``key=value`` pairs separated by semicolons.
++
++    Whitespace around keys and values is stripped, empty segments are
++    skipped, and each segment is split on the first ``=`` only, so values
++    may contain ``=``. If a key appears more than once, the later value wins.
++
++    Ticket: PAY-4102
++
++    Raises:
++        ValueError: if a non-empty segment has no ``=``.
++    """
++    result = {}
++    for segment in line.split(";"):
++        segment = segment.strip()
++        if not segment:
++            continue
++        if "=" not in segment:
++            raise ValueError(f"missing '=' in segment: {segment!r}")
++        key, value = segment.split("=", 1)
++        result[key.strip()] = value.strip()
++    return result
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_kvparse_cases.py b/tests/test_kvparse_cases.py
+--- a/tests/test_kvparse_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_kvparse_cases.py	2026-11-07 12:41:02.485439297 -0700
+@@ -0,0 +1,49 @@
++import pytest
++
++from shop.ext.kvparse import parse_kv
++
++
++def test_basic_pairs():
++    assert parse_kv("a=1;b=2") == {"a": "1", "b": "2"}
++
++
++def test_single_pair():
++    assert parse_kv("a=1") == {"a": "1"}
++
++
++def test_empty_string_gives_empty_dict():
++    assert parse_kv("") == {}
++
++
++def test_strips_whitespace_around_keys_and_values():
++    assert parse_kv("  a  =  1 ;\tb\t=\t2  ") == {"a": "1", "b": "2"}
++
++
++def test_skips_empty_segments():
++    assert parse_kv(";a=1;;b=2;") == {"a": "1", "b": "2"}
++
++
++def test_skips_whitespace_only_segments():
++    assert parse_kv("a=1; ;  \t ; b=2") == {"a": "1", "b": "2"}
++
++
++def test_splits_on_first_equals_only():
++    assert parse_kv("expr=x=y=z") == {"expr": "x=y=z"}
++
++
++def test_later_duplicate_key_wins():
++    assert parse_kv("a=1;b=2;a=3") == {"a": "3", "b": "2"}
++
++
++def test_empty_value_is_allowed():
++    assert parse_kv("a=;b=2") == {"a": "", "b": "2"}
++
++
++def test_segment_without_equals_raises():
++    with pytest.raises(ValueError):
++        parse_kv("a=1;oops;b=2")
++
++
++def test_bare_word_only_raises():
++    with pytest.raises(ValueError):
++        parse_kv("justakey")

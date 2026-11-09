@@ -1,0 +1,50 @@
+# Round 2: rules the code cannot reveal. Prompts are identical in both conditions and never mention the rules.
+# `checks` lists the convention checks that apply (definitions in score.py).
+- id: slugify
+  feature: slugify
+  func: slugify
+  ticket: PAY-4101
+  checks: [location, tests_file, stdlib, docstring, changelog]
+  prompt: "Add a new feature called slugify to this package (ticket PAY-4101). It should provide slugify(title): lowercase the text, replace every run of characters that are not ASCII letters or digits with a single '-', and strip leading and trailing '-'. Also add tests."
+- id: parse_kv
+  feature: kvparse
+  func: parse_kv
+  ticket: PAY-4102
+  checks: [location, tests_file, stdlib, docstring, changelog]
+  prompt: "Add a new feature called kvparse to this package (ticket PAY-4102). It should provide parse_kv(line), which parses 'a=1;b=2' style text into a dict of strings. Strip whitespace around keys and values, skip empty segments, split each segment on the first '=' only, let a later duplicate key win, and raise ValueError for a non-empty segment with no '='. Also add tests."
+- id: hashtags
+  feature: hashtags
+  func: hashtags
+  ticket: PAY-4103
+  checks: [location, tests_file, stdlib, docstring, changelog]
+  prompt: "Add a new feature called hashtags to this package (ticket PAY-4103). It should provide hashtags(text), returning the unique hashtags in order of first appearance, lowercase and without the '#'. A hashtag is a '#' followed by one or more letters, digits or underscores, and the '#' must be at the start of the text or right after whitespace (so 'a#b' has none). Compare case-insensitively when deciding uniqueness. Also add tests."
+- id: basename
+  feature: pathnames
+  func: basename_no_ext
+  ticket: PAY-4104
+  checks: [location, tests_file, stdlib, docstring, changelog]
+  prompt: "Add a new feature called pathnames to this package (ticket PAY-4104). It should provide basename_no_ext(path) for POSIX path strings: return the last path component without its final extension, ignoring a trailing slash. A leading dot alone is not an extension, so '.bashrc' stays '.bashrc'. For example 'a/b/file.tar.gz' gives 'file.tar'. Also add tests."
+- id: common_dir
+  feature: commondir
+  func: common_dir
+  ticket: PAY-4105
+  checks: [location, tests_file, stdlib, docstring, changelog]
+  prompt: "Add a new feature called commondir to this package (ticket PAY-4105). It should provide common_dir(paths), where paths is a non-empty list of absolute POSIX file paths. Return the deepest directory that contains all of them, as a string without a trailing slash except for the root '/'. Compare whole path components, so '/a/bc/x' and '/a/bd/y' share '/a'. Raise ValueError for an empty list. Also add tests."
+- id: chunk
+  feature: chunking
+  func: chunk
+  ticket: PAY-4106
+  checks: [location, tests_file, docstring, changelog]
+  prompt: "Add a new feature called chunking to this package (ticket PAY-4106). It should provide chunk(items, n), which splits a list into consecutive lists of length n, the last one possibly shorter. An empty list gives []. Raise ValueError if n is less than 1. Also add tests."
+- id: phone
+  feature: phones
+  func: normalize_phone
+  ticket: PAY-4107
+  checks: [location, tests_file, stdlib, docstring, changelog]
+  prompt: "Add a new feature called phones to this package (ticket PAY-4107). It should provide normalize_phone(text) for US numbers: ignore every non-digit character, accept exactly 10 digits or 11 digits starting with 1, and return '+1' followed by the 10 digits. Raise ValueError for anything else. Also add tests."
+- id: moving_average
+  feature: movavg
+  func: moving_average
+  ticket: PAY-4108
+  checks: [location, tests_file, docstring, changelog]
+  prompt: "Add a new feature called movavg to this package (ticket PAY-4108). It should provide moving_average(nums, k), returning a list of floats with the mean of every window of k consecutive numbers. Raise ValueError if k is less than 1 or larger than len(nums). Also add tests."

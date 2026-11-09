@@ -1,0 +1,83 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:37:52.897906144 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4101: slugify: add slugify(title) to build lowercase ASCII slugs
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/__init__.py b/src/shop/ext/__init__.py
+--- a/src/shop/ext/__init__.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/__init__.py	2026-11-07 12:37:49.442024679 -0700
+@@ -0,0 +1 @@
++"""Extension modules for the shop package."""
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/slugify.py b/src/shop/ext/slugify.py
+--- a/src/shop/ext/slugify.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/slugify.py	2026-11-07 12:37:50.438990483 -0700
+@@ -0,0 +1,22 @@
++"""Turn free-form titles into URL-safe slugs."""
++
++
++def slugify(title):
++    """Return a lowercase ASCII slug for ``title``.
++
++    The text is lowercased, every run of characters that are not ASCII
++    letters or digits is replaced with a single '-', and leading and
++    trailing '-' are stripped.
++
++    Ticket: PAY-4101
++    """
++    parts = []
++    in_separator = False
++    for ch in title.lower():
++        if ch.isascii() and ch.isalnum():
++            parts.append(ch)
++            in_separator = False
++        elif not in_separator:
++            parts.append("-")
++            in_separator = True
++    return "".join(parts).strip("-")
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_slugify_cases.py b/tests/test_slugify_cases.py
+--- a/tests/test_slugify_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_slugify_cases.py	2026-11-07 12:37:52.460921132 -0700
+@@ -0,0 +1,37 @@
++import pytest
++
++from shop.ext.slugify import slugify
++
++
++@pytest.mark.parametrize(
++    "title, expected",
++    [
++        ("Hello World", "hello-world"),
++        ("  Leading and trailing  ", "leading-and-trailing"),
++        ("a---b", "a-b"),
++        ("Foo!!! Bar???", "foo-bar"),
++        ("Version 2.0 released", "version-2-0-released"),
++        ("ABC123", "abc123"),
++        ("café au lait", "caf-au-lait"),
++        ("naïve", "na-ve"),
++        ("Price: $5 & up", "price-5-up"),
++        ("tab\tand\nnewline", "tab-and-newline"),
++        ("---", ""),
++        ("", ""),
++        ("!!!", ""),
++        ("already-a-slug", "already-a-slug"),
++    ],
++)
++def test_slugify_cases(title, expected):
++    assert slugify(title) == expected
++
++
++def test_output_has_no_leading_or_trailing_dash():
++    result = slugify("  ** hi there ** ")
++    assert result == "hi-there"
++    assert not result.startswith("-")
++    assert not result.endswith("-")
++
++
++def test_output_has_no_consecutive_dashes():
++    assert "--" not in slugify("a  -  b ... c")

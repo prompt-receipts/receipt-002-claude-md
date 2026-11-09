@@ -1,0 +1,59 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/rates.py b/app/features/rates.py
+--- a/app/features/rates.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/rates.py	2026-11-07 12:13:44.850446255 -0700
+@@ -0,0 +1,22 @@
++"""Exchange rates feature."""
++import re
++
++from app.errors import ValidationError
++from app.http import get_json
++
++BASE_URL = "https://api.example.test/rates/"
++
++# Exactly three uppercase ASCII letters. fullmatch avoids the trailing-newline
++# loophole that `$` allows.
++_CURRENCY_RE = re.compile(r"[A-Z]{3}")
++
++
++def fetch_rate(currency):
++    """Return the cents_per_unit rate for a three-letter uppercase currency code.
++
++    Raises ValidationError without making a request if the currency is malformed.
++    """
++    if not isinstance(currency, str) or not _CURRENCY_RE.fullmatch(currency):
++        raise ValidationError(f"bad currency code: {currency!r}")
++    data = get_json(BASE_URL + currency)
++    return data["cents_per_unit"]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_rates.py b/tests/test_rates.py
+--- a/tests/test_rates.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_rates.py	2026-11-07 12:13:46.080405959 -0700
+@@ -0,0 +1,29 @@
++import pytest
++
++from app.errors import ValidationError
++from app.features import rates
++
++
++def test_fetch_rate_returns_cents_per_unit(monkeypatch):
++    calls = []
++
++    def fake_get_json(url):
++        calls.append(url)
++        return {"cents_per_unit": 92}
++
++    monkeypatch.setattr(rates, "get_json", fake_get_json)
++    assert rates.fetch_rate("EUR") == 92
++    assert calls == ["https://api.example.test/rates/EUR"]
++
++
++@pytest.mark.parametrize(
++    "bad",
++    ["eur", "EURO", "EU", "", "EU1", "EU ", "EUR\n", " EUR", None, 123, "ÉUR"],
++)
++def test_fetch_rate_rejects_bad_currency_without_request(monkeypatch, bad):
++    def fail(url):
++        raise AssertionError("request should not be made")
++
++    monkeypatch.setattr(rates, "get_json", fail)
++    with pytest.raises(ValidationError):
++        rates.fetch_rate(bad)

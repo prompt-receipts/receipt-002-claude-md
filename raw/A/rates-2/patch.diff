@@ -1,0 +1,55 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/rates.py b/app/features/rates.py
+--- a/app/features/rates.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/rates.py	2026-11-07 12:17:43.497625350 -0700
+@@ -0,0 +1,19 @@
++"""Currency rates."""
++import re
++
++from app import http
++from app.errors import ValidationError
++
++BASE_URL = "https://api.example.test/rates/"
++_CURRENCY_RE = re.compile(r"[A-Z]{3}")
++
++
++def fetch_rate(currency):
++    """Return cents_per_unit for a three-letter uppercase currency code.
++
++    Raises ValidationError without making a request if the code is malformed.
++    """
++    if not isinstance(currency, str) or not _CURRENCY_RE.fullmatch(currency):
++        raise ValidationError(f"bad currency code: {currency!r}")
++    data = http.get_json(BASE_URL + currency)
++    return data["cents_per_unit"]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_rates.py b/tests/test_rates.py
+--- a/tests/test_rates.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_rates.py	2026-11-07 12:17:44.627588310 -0700
+@@ -0,0 +1,28 @@
++import pytest
++
++from app.errors import ValidationError
++from app.features import rates
++
++
++def test_fetch_rate_returns_cents_per_unit(monkeypatch):
++    calls = []
++
++    def fake_get_json(url):
++        calls.append(url)
++        return {"cents_per_unit": 92}
++
++    monkeypatch.setattr(rates.http, "get_json", fake_get_json)
++    assert rates.fetch_rate("EUR") == 92
++    assert calls == ["https://api.example.test/rates/EUR"]
++
++
++@pytest.mark.parametrize(
++    "bad", ["eur", "EURO", "EU", "EU1", "EUR\n", " EUR", "", None, 123]
++)
++def test_fetch_rate_rejects_bad_codes_without_request(monkeypatch, bad):
++    def fail(url):
++        raise AssertionError("should not request")
++
++    monkeypatch.setattr(rates.http, "get_json", fail)
++    with pytest.raises(ValidationError):
++        rates.fetch_rate(bad)

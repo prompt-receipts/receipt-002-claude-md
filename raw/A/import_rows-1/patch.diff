@@ -1,0 +1,89 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/importer.py b/app/features/importer.py
+--- a/app/features/importer.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/importer.py	2026-11-07 12:13:11.146550405 -0700
+@@ -0,0 +1,36 @@
++"""Bulk importer for 'name,amount' lines (amount is a dollar string, e.g. '10.50')."""
++import logging
++
++from app.errors import ValidationError
++from app.money import parse_money
++
++log = logging.getLogger(__name__)
++
++
++def import_rows(lines):
++    """Parse 'name,amount' lines into a list of (name, cents) tuples.
++
++    Valid lines are returned in input order. Invalid lines (wrong number of
++    fields, empty name, or invalid amount) are skipped and each one is logged
++    at WARNING level with its 1-based line number and the reason, so an
++    operator can see which lines were dropped.
++    """
++    rows = []
++    for lineno, line in enumerate(lines, start=1):
++        parts = line.split(",")
++        if len(parts) != 2:
++            log.warning("skipped line %d: expected 2 fields, got %d: %r",
++                        lineno, len(parts), line)
++            continue
++        name, amount = (p.strip() for p in parts)
++        if not name:
++            log.warning("skipped line %d: empty name: %r", lineno, line)
++            continue
++        try:
++            cents = parse_money(amount)
++        except ValidationError:
++            log.warning("skipped line %d: invalid amount %r: %r",
++                        lineno, amount, line)
++            continue
++        rows.append((name, cents))
++    return rows
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_importer.py b/tests/test_importer.py
+--- a/tests/test_importer.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_importer.py	2026-11-07 12:13:13.446475062 -0700
+@@ -0,0 +1,45 @@
++import logging
++
++from app.features.importer import import_rows
++
++
++def test_valid_rows_in_order():
++    assert import_rows(["ann,10.50", "bob,0.99", "cy,3"]) == [
++        ("ann", 1050),
++        ("bob", 99),
++        ("cy", 300),
++    ]
++
++
++def test_whitespace_around_fields_is_ignored():
++    assert import_rows([" ann , 1.5 "]) == [("ann", 150)]
++
++
++def test_wrong_field_count_is_skipped_and_reported(caplog):
++    with caplog.at_level(logging.WARNING, logger="app.features.importer"):
++        rows = import_rows(["ann,1.00", "bob", "cy,2.00,extra", ""])
++    assert rows == [("ann", 100)]
++    assert "skipped line 2" in caplog.text
++    assert "skipped line 3" in caplog.text
++    assert "skipped line 4" in caplog.text
++
++
++def test_empty_name_is_skipped_and_reported(caplog):
++    with caplog.at_level(logging.WARNING, logger="app.features.importer"):
++        rows = import_rows([",1.00", "   ,2.00", "dan,3.00"])
++    assert rows == [("dan", 300)]
++    assert "skipped line 1" in caplog.text
++    assert "skipped line 2" in caplog.text
++
++
++def test_invalid_amount_is_skipped_and_reported(caplog):
++    with caplog.at_level(logging.WARNING, logger="app.features.importer"):
++        rows = import_rows(["ann,abc", "bob,-1.00", "cy,", "dan,1.00"])
++    assert rows == [("dan", 100)]
++    assert "skipped line 1" in caplog.text
++    assert "skipped line 2" in caplog.text
++    assert "skipped line 3" in caplog.text
++
++
++def test_empty_input():
++    assert import_rows([]) == []

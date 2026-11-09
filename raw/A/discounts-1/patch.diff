@@ -1,0 +1,74 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/discounts.py b/app/features/discounts.py
+--- a/app/features/discounts.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/discounts.py	2026-11-07 12:10:22.213082797 -0700
+@@ -0,0 +1,22 @@
++"""Percentage discounts."""
++from app.errors import ValidationError
++from app.money import fmt_money, parse_money
++
++
++def apply_discount(price, percent):
++    """Apply a whole-number percent discount to a dollar amount string.
++
++    price: amount such as '19.99' (see app.money.parse_money).
++    percent: int from 0 to 100.
++    The discount is price_cents * percent // 100 cents (rounded down).
++    Returns the discounted price formatted like '$18.00'.
++    Raises ValidationError for an invalid price or percent.
++    """
++    if isinstance(percent, bool) or not isinstance(percent, int):
++        raise ValidationError(f"percent must be an int: {percent!r}")
++    if not 0 <= percent <= 100:
++        raise ValidationError(f"percent must be between 0 and 100: {percent!r}")
++
++    price_cents = parse_money(price)
++    discount_cents = price_cents * percent // 100
++    return fmt_money(price_cents - discount_cents)
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_discounts.py b/tests/test_discounts.py
+--- a/tests/test_discounts.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_discounts.py	2026-11-07 12:10:24.080021677 -0700
+@@ -0,0 +1,44 @@
++import pytest
++
++from app.errors import ValidationError
++from app.features.discounts import apply_discount
++
++
++def test_example():
++    assert apply_discount("19.99", 10) == "$18.00"
++
++
++def test_zero_percent_keeps_price():
++    assert apply_discount("19.99", 0) == "$19.99"
++
++
++def test_full_percent_is_free():
++    assert apply_discount("19.99", 100) == "$0.00"
++
++
++def test_discount_rounds_down():
++    # 1999 * 33 // 100 = 659 discount cents -> 1340
++    assert apply_discount("19.99", 33) == "$13.40"
++
++
++def test_whole_dollar_and_single_decimal_inputs():
++    assert apply_discount("20", 50) == "$10.00"
++    assert apply_discount("$20.5", 10) == "$18.45"
++
++
++@pytest.mark.parametrize("percent", [-1, 101, 1000])
++def test_percent_out_of_range(percent):
++    with pytest.raises(ValidationError):
++        apply_discount("19.99", percent)
++
++
++@pytest.mark.parametrize("percent", [10.5, "10", None, True])
++def test_percent_not_int(percent):
++    with pytest.raises(ValidationError):
++        apply_discount("19.99", percent)
++
++
++@pytest.mark.parametrize("price", ["", "abc", "-5.00", "1.234", "1,000", "$"])
++def test_invalid_price(price):
++    with pytest.raises(ValidationError):
++        apply_discount(price, 10)

@@ -1,0 +1,112 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:35:57.792869523 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `shop.commondir.common_dir(paths)` to return the deepest directory shared by a list of absolute POSIX paths (PAY-4105).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/commondir.py b/src/shop/commondir.py
+--- a/src/shop/commondir.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/commondir.py	2026-11-07 12:35:54.520982681 -0700
+@@ -0,0 +1,31 @@
++"""Find the deepest directory shared by a set of absolute POSIX paths."""
++
++
++def _components(path):
++    # Empty segments (from doubled or trailing slashes) carry no meaning.
++    return [part for part in path.split("/") if part]
++
++
++def common_dir(paths):
++    """Return the deepest directory containing all of ``paths``.
++
++    ``paths`` is a non-empty list of absolute POSIX file paths. Comparison is
++    by whole path component, so '/a/bc/x' and '/a/bd/y' share '/a'. The result
++    has no trailing slash, except for the root '/'.
++
++    Raises ValueError if ``paths`` is empty.
++    """
++    paths = list(paths)
++    if not paths:
++        raise ValueError("common_dir() requires at least one path")
++
++    shared = _components(paths[0])
++    for path in paths[1:]:
++        parts = _components(path)
++        n = 0
++        limit = min(len(shared), len(parts))
++        while n < limit and shared[n] == parts[n]:
++            n += 1
++        del shared[n:]
++
++    return "/" + "/".join(shared)
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_commondir.py b/tests/test_commondir.py
+--- a/tests/test_commondir.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_commondir.py	2026-11-07 12:35:57.291886847 -0700
+@@ -0,0 +1,62 @@
++import pytest
++
++from shop.commondir import common_dir
++
++
++def test_shares_whole_components_only():
++    assert common_dir(["/a/bc/x", "/a/bd/y"]) == "/a"
++
++
++def test_deepest_shared_directory():
++    assert common_dir(["/a/b/c/file1", "/a/b/c/d/file2", "/a/b/e"]) == "/a/b"
++
++
++def test_identical_paths_return_their_directory_part():
++    assert common_dir(["/a/b/c", "/a/b/c"]) == "/a/b/c"
++
++
++def test_single_path():
++    assert common_dir(["/a/b/c.txt"]) == "/a/b/c.txt"
++
++
++def test_only_root_in_common_returns_root():
++    assert common_dir(["/a/x", "/b/y"]) == "/"
++
++
++def test_root_path_alone():
++    assert common_dir(["/"]) == "/"
++
++
++def test_root_with_other_paths_returns_root():
++    assert common_dir(["/", "/a/b"]) == "/"
++
++
++def test_prefix_path_is_shared_ancestor():
++    assert common_dir(["/a/b", "/a/b/c/d"]) == "/a/b"
++
++
++def test_no_trailing_slash_in_result():
++    assert common_dir(["/a/b/", "/a/b/c/"]) == "/a/b"
++
++
++def test_duplicate_slashes_are_ignored():
++    assert common_dir(["/a//b/x", "/a/b/y"]) == "/a/b"
++
++
++def test_tuple_input_is_accepted():
++    assert common_dir(("/usr/lib/x", "/usr/lib/y", "/usr/bin")) == "/usr"
++
++
++def test_many_paths():
++    paths = [f"/srv/app/module{i}/file.py" for i in range(50)]
++    assert common_dir(paths) == "/srv/app"
++
++
++def test_order_does_not_matter():
++    paths = ["/a/b/c", "/a/x", "/a/b/d/e"]
++    assert common_dir(paths) == common_dir(list(reversed(paths))) == "/a"
++
++
++def test_empty_list_raises_value_error():
++    with pytest.raises(ValueError):
++        common_dir([])

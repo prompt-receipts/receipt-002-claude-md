@@ -1,0 +1,81 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:38:54.936782562 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `shop.pathnames.basename_no_ext` for POSIX paths (PAY-4104).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/pathnames.py b/src/shop/pathnames.py
+--- a/src/shop/pathnames.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/pathnames.py	2026-11-07 12:38:52.763856808 -0700
+@@ -0,0 +1,23 @@
++"""POSIX path helpers (ticket PAY-4104)."""
++
++
++def basename_no_ext(path):
++    """Return the last path component of a POSIX path with its final extension removed.
++
++    A trailing slash is ignored. Leading dots are not treated as an extension
++    separator, so '.bashrc' stays '.bashrc' and '...' stays '...'.
++
++    Examples:
++        'a/b/file.tar.gz' -> 'file.tar'
++        'a/b/dir/'        -> 'dir'
++        'a/.bashrc'       -> '.bashrc'
++        'README'          -> 'README'
++    """
++    stripped = path.rstrip("/")
++    name = stripped.rsplit("/", 1)[-1]
++    # Skip the run of leading dots so they never count as an extension separator.
++    stem_start = len(name) - len(name.lstrip("."))
++    idx = name.rfind(".", stem_start)
++    if idx == -1:
++        return name
++    return name[:idx]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_pathnames.py b/tests/test_pathnames.py
+--- a/tests/test_pathnames.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_pathnames.py	2026-11-07 12:38:54.513797014 -0700
+@@ -0,0 +1,39 @@
++import pytest
++
++from shop.pathnames import basename_no_ext
++
++
++@pytest.mark.parametrize(
++    "path, expected",
++    [
++        ("a/b/file.tar.gz", "file.tar"),
++        ("file.txt", "file"),
++        ("/abs/path/report.pdf", "report"),
++        ("a/b/file", "file"),
++        ("README", "README"),
++        # trailing slash is ignored
++        ("a/b/dir/", "dir"),
++        ("a/b/file.tar.gz/", "file.tar"),
++        # repeated slashes
++        ("a//b///c.txt", "c"),
++        ("a/b//", "b"),
++        # leading dot is not an extension
++        (".bashrc", ".bashrc"),
++        ("a/.bashrc", ".bashrc"),
++        (".bashrc/", ".bashrc"),
++        (".tar.gz", ".tar"),
++        ("...", "..."),
++        ("..", ".."),
++        (".", "."),
++        # multiple dots: only the final extension is removed
++        ("archive.v1.2.zip", "archive.v1.2"),
++        # trailing dot yields an empty extension, which is stripped
++        ("file.", "file"),
++        ("a..", "a."),
++        # no component at all
++        ("", ""),
++        ("/", ""),
++    ],
++)
++def test_basename_no_ext(path, expected):
++    assert basename_no_ext(path) == expected

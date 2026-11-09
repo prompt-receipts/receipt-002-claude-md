@@ -1,0 +1,79 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:37:05.496534361 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4104: pathnames: add basename_no_ext for POSIX paths
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/pathnames.py b/src/shop/ext/pathnames.py
+--- a/src/shop/ext/pathnames.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/pathnames.py	2026-11-07 12:36:59.529739694 -0700
+@@ -0,0 +1,23 @@
++"""POSIX path helpers."""
++
++from pathlib import PurePosixPath
++
++
++def basename_no_ext(path):
++    """Return the last path component of a POSIX path without its final extension.
++
++    A trailing slash is ignored. A leading dot alone is not an extension, so
++    hidden names such as ``.bashrc`` are returned unchanged.
++
++    Ticket: PAY-4104
++    """
++    name = PurePosixPath(path).name
++    idx = name.rfind(".")
++    # idx == 0 means a leading dot (hidden file); idx == -1 means no dot.
++    # A name whose part before the dot is only dots (e.g. "..") has no extension.
++    if idx <= 0 or not name[:idx].strip("."):
++        return name
++    if idx == len(name) - 1:
++        # Trailing dot with nothing after it is not an extension.
++        return name
++    return name[:idx]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_pathnames_cases.py b/tests/test_pathnames_cases.py
+--- a/tests/test_pathnames_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_pathnames_cases.py	2026-11-07 12:36:59.530739660 -0700
+@@ -0,0 +1,37 @@
++"""Tests for the pathnames feature.
++
++Ticket: PAY-4104
++"""
++
++import pytest
++
++from shop.ext.pathnames import basename_no_ext
++
++
++@pytest.mark.parametrize(
++    "path, expected",
++    [
++        ("a/b/file.tar.gz", "file.tar"),
++        ("file.txt", "file"),
++        ("/abs/path/report.pdf", "report"),
++        ("a/b/file.tar.gz/", "file.tar"),
++        ("a/b/file.txt//", "file"),
++        ("noext", "noext"),
++        ("a/b/noext", "noext"),
++        (".bashrc", ".bashrc"),
++        ("a/.bashrc", ".bashrc"),
++        (".tar.gz", ".tar"),
++        ("dir.d/file", "file"),
++        ("..", ".."),
++        ("a/..", ".."),
++        ("file.", "file."),
++        ("", ""),
++        ("/", ""),
++    ],
++)
++def test_basename_no_ext(path, expected):
++    """basename_no_ext returns the final component minus its extension.
++
++    Ticket: PAY-4104
++    """
++    assert basename_no_ext(path) == expected

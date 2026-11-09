@@ -1,0 +1,90 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:34:15.233431630 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `shop.phones.normalize_phone` for US phone normalization to `+1XXXXXXXXXX` (PAY-4107)
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/phones.py b/src/shop/phones.py
+--- a/src/shop/phones.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/phones.py	2026-11-07 12:34:04.412809407 -0700
+@@ -0,0 +1,21 @@
++"""US phone number normalization (PAY-4107)."""
++
++_DIGITS = "0123456789"
++
++
++def normalize_phone(text):
++    """Normalize a US phone number to E.164 form, e.g. '+14155550123'.
++
++    All non-digit characters are ignored. Accepts exactly 10 digits, or
++    11 digits starting with '1'. Raises ValueError for anything else.
++    """
++    if not isinstance(text, str):
++        raise ValueError(f"expected a string, got {type(text).__name__}")
++
++    digits = "".join(ch for ch in text if ch in _DIGITS)
++
++    if len(digits) == 10:
++        return "+1" + digits
++    if len(digits) == 11 and digits[0] == "1":
++        return "+1" + digits[1:]
++    raise ValueError(f"not a valid US phone number: {text!r}")
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_phones.py b/tests/test_phones.py
+--- a/tests/test_phones.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_phones.py	2026-11-07 12:34:10.400600308 -0700
+@@ -0,0 +1,50 @@
++import pytest
++
++from shop.phones import normalize_phone
++
++
++@pytest.mark.parametrize(
++    "text, expected",
++    [
++        ("4155550123", "+14155550123"),
++        ("14155550123", "+14155550123"),
++        ("(415) 555-0123", "+14155550123"),
++        ("415-555-0123", "+14155550123"),
++        ("+1 (415) 555-0123", "+14155550123"),
++        ("1-415-555-0123", "+14155550123"),
++        ("  415.555.0123  ", "+14155550123"),
++        ("abc415x555y0123", "+14155550123"),
++        ("0415555012", "+10415555012"),  # 10 digits: no area-code validation
++    ],
++)
++def test_normalizes_valid_numbers(text, expected):
++    assert normalize_phone(text) == expected
++
++
++@pytest.mark.parametrize(
++    "text",
++    [
++        "",
++        "555-0123",       # 7 digits
++        "415555012",      # 9 digits
++        "415555012345",   # 12 digits
++        "24155550123",    # 11 digits not starting with 1
++        "no digits here",
++        "+",
++    ],
++)
++def test_rejects_invalid_numbers(text):
++    with pytest.raises(ValueError):
++        normalize_phone(text)
++
++
++@pytest.mark.parametrize("value", [None, 4155550123, ["4155550123"]])
++def test_rejects_non_string(value):
++    with pytest.raises(ValueError):
++        normalize_phone(value)
++
++
++def test_rejects_non_ascii_digits():
++    # Arabic-Indic digits are not ASCII 0-9 and must not count.
++    with pytest.raises(ValueError):
++        normalize_phone("٤١٥٥٥٥٠١٢٣")

@@ -1,0 +1,89 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:26:48.290543708 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `shop.movavg.moving_average(nums, k)` (PAY-4108).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/movavg.py b/src/shop/movavg.py
+--- a/src/shop/movavg.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/movavg.py	2026-11-07 12:26:45.664846568 -0700
+@@ -0,0 +1,19 @@
++def moving_average(nums, k):
++    """Return the mean of every window of k consecutive numbers in nums.
++
++    The result has len(nums) - k + 1 floats. Raises ValueError if k < 1
++    or k > len(nums).
++    """
++    n = len(nums)
++    if k < 1:
++        raise ValueError(f"k must be at least 1, got {k}")
++    if k > n:
++        raise ValueError(f"k must not exceed len(nums) ({n}), got {k}")
++
++    result = []
++    window_sum = float(sum(nums[:k]))
++    result.append(window_sum / k)
++    for i in range(k, n):
++        window_sum += nums[i] - nums[i - k]
++        result.append(window_sum / k)
++    return result
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_movavg.py b/tests/test_movavg.py
+--- a/tests/test_movavg.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_movavg.py	2026-11-07 12:26:47.623782314 -0700
+@@ -0,0 +1,51 @@
++import pytest
++
++from shop.movavg import moving_average
++
++
++def test_basic_window():
++    assert moving_average([1, 2, 3, 4, 5], 2) == [1.5, 2.5, 3.5, 4.5]
++
++
++def test_window_equal_to_length_gives_single_mean():
++    assert moving_average([2, 4, 6], 3) == [4.0]
++
++
++def test_window_of_one_returns_floats_of_input():
++    result = moving_average([1, 2, 3], 1)
++    assert result == [1.0, 2.0, 3.0]
++    assert all(isinstance(x, float) for x in result)
++
++
++def test_results_are_floats():
++    result = moving_average([1, 2, 3, 4], 3)
++    assert all(isinstance(x, float) for x in result)
++    assert result == [2.0, 3.0]
++
++
++def test_fractional_means():
++    assert moving_average([1, 2, 2], 2) == [1.5, 2.0]
++
++
++def test_negative_and_float_inputs():
++    assert moving_average([-1.0, 1.0, 3.0], 2) == [0.0, 2.0]
++
++
++def test_k_zero_raises():
++    with pytest.raises(ValueError):
++        moving_average([1, 2, 3], 0)
++
++
++def test_k_negative_raises():
++    with pytest.raises(ValueError):
++        moving_average([1, 2, 3], -1)
++
++
++def test_k_larger_than_length_raises():
++    with pytest.raises(ValueError):
++        moving_average([1, 2, 3], 4)
++
++
++def test_empty_input_raises_for_any_k_at_least_one():
++    with pytest.raises(ValueError):
++        moving_average([], 1)

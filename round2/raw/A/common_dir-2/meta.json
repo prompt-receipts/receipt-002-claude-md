@@ -1,0 +1,58 @@
+{
+ "text": "I added `common_dir(paths)` to the `shop` package as ticket PAY-4105 asks, with tests. All 15 tests pass.\n\n**Changes**\n- `src/shop/commondir.py` (new): `common_dir(paths)`. It splits each path into components, takes the longest common prefix, and joins it back with a leading `/`. Comparison is per component, so `/a/bc/x` and `/a/bd/y` give `/a`. The result has no trailing slash, and root is `/`. An empty list raises `ValueError`.\n- `tests/test_commondir.py` (new): covers shared parents, whole-component matching, root results, ancestor paths, trailing and repeated slashes, tuple input, and the empty-list error.\n- `CHANGELOG.md`: one line under Unreleased.\n\n**Choices I made that you didn't specify**\n- A relative path also raises `ValueError`, since the spec says the inputs are absolute. Say if you'd rather it be handled differently.\n- Paths are not normalized. `.` and `..` components are compared literally.\n- I did not export the function from `src/shop/__init__.py`, which is currently empty. Import it as `shop.commondir`.\n\n**Testing note**\nThe system Python has no pytest, and pip refused to install into it. I created a venv at `/tmp/shop-venv` outside the repo and ran `python -m pytest` there.",
+ "is_error": false,
+ "cost_usd": 0.00306997,
+ "num_turns": 9,
+ "input_tokens": 14,
+ "cache_creation_tokens": 4680,
+ "cache_read_tokens": 51107,
+ "output_tokens": 3243,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-s7t7vjby/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called commondir to this package (ticket PAY-4105). It should provide common_dir(paths), where paths is a non-empty list of absolute POSIX file paths. Return the deepest directory that contains all of them, as a string without a trailing slash except for the root '/'. Compare whole path components, so '/a/bc/x' and '/a/bd/y' share '/a'. Raise ValueError for an empty list. Also add tests."
+}

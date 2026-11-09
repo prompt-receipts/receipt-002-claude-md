@@ -1,0 +1,85 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/refunds.py b/app/features/refunds.py
+--- a/app/features/refunds.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/refunds.py	2026-11-07 12:20:12.665734971 -0700
+@@ -0,0 +1,25 @@
++"""Refund calculation."""
++from app.audit import audit
++from app.errors import ValidationError
++from app.money import parse_money
++
++
++def refund_amount(price, fee_bps):
++    """Return the refund in integer cents: price cents minus a processing fee.
++
++    price: dollar amount string such as '12.50'.
++    fee_bps: processing fee in basis points, 0 to 10000 inclusive.
++    The fee is price_cents * fee_bps // 10000.
++    Raises ValidationError if fee_bps is out of range or price is invalid.
++    """
++    if isinstance(fee_bps, bool) or not isinstance(fee_bps, int):
++        raise ValidationError(f"fee_bps must be an integer: {fee_bps!r}")
++    if not 0 <= fee_bps <= 10000:
++        raise ValidationError(f"fee_bps must be between 0 and 10000: {fee_bps!r}")
++
++    price_cents = parse_money(price)
++    fee = price_cents * fee_bps // 10000
++    refund = price_cents - fee
++
++    audit("refund_calculated", price_cents=price_cents, fee_bps=fee_bps, refund_cents=refund)
++    return refund
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_refunds.py b/tests/test_refunds.py
+--- a/tests/test_refunds.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_refunds.py	2026-11-07 12:20:14.829664021 -0700
+@@ -0,0 +1,52 @@
++import pytest
++
++from app import audit as audit_mod
++from app.errors import ValidationError
++from app.features.refunds import refund_amount
++
++
++@pytest.fixture(autouse=True)
++def _clear_audit():
++    audit_mod.EVENTS.clear()
++    yield
++    audit_mod.EVENTS.clear()
++
++
++def test_no_fee():
++    assert refund_amount("12.50", 0) == 1250
++
++
++def test_full_fee_refunds_nothing():
++    assert refund_amount("12.50", 10000) == 0
++
++
++def test_fee_rounds_down():
++    # 1250 * 250 // 10000 = 31 (31.25 floored), refund 1219
++    assert refund_amount("12.50", 250) == 1219
++
++
++def test_dollar_sign_and_single_decimal_accepted():
++    assert refund_amount("$12.5", 0) == 1250
++
++
++def test_whole_dollars():
++    assert refund_amount("12", 100) == 1200 - 12
++
++
++@pytest.mark.parametrize("bps", [-1, 10001])
++def test_fee_out_of_range(bps):
++    with pytest.raises(ValidationError):
++        refund_amount("12.50", bps)
++
++
++@pytest.mark.parametrize("bad", ["", "abc", "1.234", "-5.00", "12.50.1"])
++def test_invalid_price(bad):
++    with pytest.raises(ValidationError):
++        refund_amount(bad, 100)
++
++
++def test_records_audit_event():
++    refund_amount("12.50", 250)
++    assert audit_mod.EVENTS == [
++        {"event": "refund_calculated", "price_cents": 1250, "fee_bps": 250, "refund_cents": 1219}
++    ]

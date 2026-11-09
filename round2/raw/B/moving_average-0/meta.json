@@ -1,0 +1,58 @@
+{
+ "text": "I added `moving_average(nums, k)` as the `movavg` feature for PAY-4108. All 8 new tests pass with `python -m pytest -q`.\n\n- **Module:** `src/shop/ext/movavg.py`. The `ext` package didn't exist, so I created `src/shop/ext/__init__.py` as well.\n- **Behavior:** returns a list of floats, one mean per window, so the result has `len(nums) - k + 1` entries. It raises `ValueError` if `k < 1` or `k > len(nums)`. Empty input raises because any `k >= 1` is larger than zero.\n- **Tests:** `tests/test_movavg_cases.py`, covering basic windows, window equal to length, `k=1`, tuple and float input, `k` of 0 or negative, `k` larger than the input, and empty input.\n- **Changelog:** added `- PAY-4108: movavg: add moving_average helper` under `## Unreleased`.\n- **Conventions:** no `re` or `os.path`. Every public function docstring has a `Ticket: PAY-4108` line.\n\nThe system `python` isn't on the PATH here and the system Python is externally managed, so I ran the tests in a venv at `/tmp/movavg-venv`, outside the repo. Nothing was committed.",
+ "is_error": false,
+ "cost_usd": 0.0029298700000000002,
+ "num_turns": 7,
+ "input_tokens": 14,
+ "cache_creation_tokens": 4594,
+ "cache_read_tokens": 51967,
+ "output_tokens": 2980,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-qx2t7mct/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called movavg to this package (ticket PAY-4108). It should provide moving_average(nums, k), returning a list of floats with the mean of every window of k consecutive numbers. Raise ValueError if k is less than 1 or larger than len(nums). Also add tests."
+}

@@ -1,0 +1,58 @@
+{
+ "text": "I added `normalize_phone` for PAY-4107 as `shop.phones`, with tests. All 22 tests pass.\n\n**Changes**\n- `src/shop/phones.py`: `normalize_phone(text)` drops every non-digit character. It accepts exactly 10 digits, or 11 digits starting with `1`, and returns `+1` followed by the 10 digits. Anything else raises `ValueError`.\n- `tests/test_phones.py`: covers common formats (dashes, spaces, parentheses, dots, a leading `+1`, and a leading `1` without `+`), plus rejections for 7, 9, and 12 digits, an 11-digit number not starting with `1`, text with no digits, and non-string input.\n- `CHANGELOG.md`: one line under Unreleased.\n\n**Choices to check**\n- Non-string input raises `TypeError`, not `ValueError`, since your spec only covered text. Say if you want `ValueError` there instead.\n- Only ASCII `0`\u2013`9` count as digits. Unicode digits such as Arabic-Indic ones are ignored.\n- A 10-digit input starting with `0` or `1` is accepted, because the spec says any exactly-10-digit input is valid.\n- `shop/__init__.py` is unchanged, so callers import from `shop.phones`.\n\nI installed pytest in a venv at `/tmp/pr2-venv`, outside the repo, because the system Python blocks pip installs. I did not commit anything.",
+ "is_error": false,
+ "cost_usd": 0.00370528,
+ "num_turns": 11,
+ "input_tokens": 16,
+ "cache_creation_tokens": 5355,
+ "cache_read_tokens": 61918,
+ "output_tokens": 4027,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-8neqov_k/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called phones to this package (ticket PAY-4107). It should provide normalize_phone(text) for US numbers: ignore every non-digit character, accept exactly 10 digits or 11 digits starting with 1, and return '+1' followed by the 10 digits. Raise ValueError for anything else. Also add tests."
+}

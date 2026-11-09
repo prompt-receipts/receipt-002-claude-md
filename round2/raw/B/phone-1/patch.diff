@@ -1,0 +1,82 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:32:26.628242734 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4107: phones: add normalize_phone for US numbers to +1 E.164 form
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/__init__.py b/src/shop/ext/__init__.py
+--- a/src/shop/ext/__init__.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/__init__.py	2026-11-07 12:32:23.033369669 -0700
+@@ -0,0 +1 @@
++"""Extension modules for the shop package."""
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/phones.py b/src/shop/ext/phones.py
+--- a/src/shop/ext/phones.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/phones.py	2026-11-07 12:32:24.092332272 -0700
+@@ -0,0 +1,20 @@
++"""Phone number helpers for US numbers."""
++
++DIGITS = "0123456789"
++
++
++def normalize_phone(text):
++    """Normalize a US phone number to the form ``+1XXXXXXXXXX``.
++
++    All non-digit characters are ignored. The remaining digits must be
++    either exactly 10 digits, or 11 digits starting with ``1`` (the US
++    country code). Anything else raises ``ValueError``.
++
++    Ticket: PAY-4107
++    """
++    digits = "".join(c for c in text if c in DIGITS)
++    if len(digits) == 11 and digits[0] == "1":
++        digits = digits[1:]
++    if len(digits) != 10:
++        raise ValueError(f"not a US phone number: {text!r}")
++    return "+1" + digits
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_phones_cases.py b/tests/test_phones_cases.py
+--- a/tests/test_phones_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_phones_cases.py	2026-11-07 12:32:26.134260173 -0700
+@@ -0,0 +1,38 @@
++import pytest
++
++from shop.ext.phones import normalize_phone
++
++
++@pytest.mark.parametrize(
++    "text, expected",
++    [
++        ("2025550123", "+12025550123"),
++        ("12025550123", "+12025550123"),
++        ("(202) 555-0123", "+12025550123"),
++        ("202-555-0123", "+12025550123"),
++        ("+1 (202) 555-0123", "+12025550123"),
++        ("1-202-555-0123", "+12025550123"),
++        ("202.555.0123 ext", "+12025550123"),
++        ("abc2025550123xyz", "+12025550123"),
++    ],
++)
++def test_normalizes_valid_numbers(text, expected):
++    assert normalize_phone(text) == expected
++
++
++@pytest.mark.parametrize(
++    "text",
++    [
++        "",
++        "555-0123",  # 7 digits
++        "202555012",  # 9 digits
++        "20255501234",  # 11 digits, does not start with 1
++        "120255501234",  # 12 digits
++        "+44 20 7946 0958",  # non-US country code, 11 digits starting with 4
++        "no digits here",
++        "٢٢٢٥٥٥٠١٢٣",  # Arabic-Indic digits
++    ],
++)
++def test_rejects_invalid_numbers(text):
++    with pytest.raises(ValueError):
++        normalize_phone(text)

@@ -1,0 +1,56 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/accounts.py b/app/features/accounts.py
+--- a/app/features/accounts.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/accounts.py	2026-11-07 12:08:48.745142100 -0700
+@@ -0,0 +1,17 @@
++"""Account features."""
++from app.audit import audit
++from app.errors import NotFoundError
++
++
++def close_account(accounts, account_id):
++    """Close an account.
++
++    `accounts` maps account id -> balance in cents. The account is removed from
++    the dict and its former balance (in cents) is returned. If the account does
++    not exist, NotFoundError is raised and the dict is left unchanged.
++    """
++    if account_id not in accounts:
++        raise NotFoundError(f"no such account: {account_id!r}")
++    balance = accounts.pop(account_id)
++    audit("account_closed", account_id=account_id, balance_cents=balance)
++    return balance
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_accounts.py b/tests/test_accounts.py
+--- a/tests/test_accounts.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_accounts.py	2026-11-07 12:08:53.411989383 -0700
+@@ -0,0 +1,31 @@
++from app import audit
++from app.errors import NotFoundError
++from app.features.accounts import close_account
++
++
++def test_close_account_removes_and_returns_balance():
++    accounts = {"a1": 1250, "a2": 0}
++    assert close_account(accounts, "a1") == 1250
++    assert accounts == {"a2": 0}
++
++
++def test_close_account_missing_raises_and_leaves_dict_unchanged():
++    accounts = {"a1": 1250}
++    before = dict(accounts)
++    try:
++        close_account(accounts, "nope")
++    except NotFoundError:
++        pass
++    else:
++        raise AssertionError("expected NotFoundError")
++    assert accounts == before
++
++
++def test_close_account_records_audit_event():
++    audit.EVENTS.clear()
++    close_account({"a1": 500}, "a1")
++    assert audit.EVENTS[-1] == {
++        "event": "account_closed",
++        "account_id": "a1",
++        "balance_cents": 500,
++    }

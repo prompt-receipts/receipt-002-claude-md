@@ -1,0 +1,58 @@
+{
+ "text": "I added `slugify(title)` to `shop.core` for PAY-4101, with tests. The 14 tests pass.\n\n- **Implementation** (`src/shop/core.py`): lowercases the input, replaces each run of characters outside `[a-z0-9]` with a single `-`, and strips leading and trailing `-`. Non-ASCII letters such as `\u00e9` count as separators, so `Caf\u00e9 Cr\u00e8me` becomes `caf-cr-me`.\n- **Tests** (`tests/test_core.py`): parametrized cases for spaces, punctuation, empty and symbol-only input, non-Latin text, and an output-character check. The existing `total` test is there too.\n- **Changelog**: one line under Unreleased.\n\nChoices to check:\n- I put the function in `core.py` next to `total`, not in `__init__.py`, which is empty. Callers import it as `from shop.core import slugify`.\n- Non-ASCII letters are dropped rather than transliterated (`\u00e9` does not become `e`), because the spec says every non-ASCII-alphanumeric run becomes `-`. Say if you want transliteration.\n- Passing a non-string raises `AttributeError`; the spec didn't cover that case, so I left it alone.\n\nPytest wasn't installed on the system Python, so I ran the suite from a venv at `/tmp/venv-shop-pytest`. The directory isn't a git repository, so I didn't commit anything.",
+ "is_error": false,
+ "cost_usd": 0.0027179900000000004,
+ "num_turns": 7,
+ "input_tokens": 14,
+ "cache_creation_tokens": 3737,
+ "cache_read_tokens": 50969,
+ "output_tokens": 2919,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-81ljf_4c/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called slugify to this package (ticket PAY-4101). It should provide slugify(title): lowercase the text, replace every run of characters that are not ASCII letters or digits with a single '-', and strip leading and trailing '-'. Also add tests."
+}

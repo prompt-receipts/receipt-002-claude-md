@@ -1,0 +1,68 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:39:41.793018856 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `slugify(title)` to `shop.core` (PAY-4101).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/core.py b/src/shop/core.py
+--- a/src/shop/core.py	2026-11-07 12:23:15.178106871 -0700
++++ b/src/shop/core.py	2026-11-07 12:39:39.617257872 -0700
+@@ -1,3 +1,18 @@
++import re
++
++
+ def total(prices):
+     """Sum a list of prices."""
+     return sum(prices)
++
++
++_NON_SLUG_CHARS = re.compile(r"[^a-z0-9]+")
++
++
++def slugify(title):
++    """Turn a title into a URL-friendly slug (PAY-4101).
++
++    Lowercases the text, replaces each run of characters that are not ASCII
++    letters or digits with a single '-', and strips leading/trailing '-'.
++    """
++    return _NON_SLUG_CHARS.sub("-", title.lower()).strip("-")
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_slugify.py b/tests/test_slugify.py
+--- a/tests/test_slugify.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_slugify.py	2026-11-07 12:39:41.782184088 -0700
+@@ -0,0 +1,31 @@
++import pytest
++
++from shop.core import slugify
++
++
++@pytest.mark.parametrize(
++    "title, expected",
++    [
++        ("Hello World", "hello-world"),
++        ("  Hello,   World!  ", "hello-world"),
++        ("Already-a-slug", "already-a-slug"),
++        ("Python 3.12 Release", "python-3-12-release"),
++        ("a--b__c", "a-b-c"),
++        ("---edge---", "edge"),
++        ("Café Olé", "caf-ol"),
++        ("日本語", ""),
++        ("", ""),
++        ("!!!", ""),
++        ("ABC123", "abc123"),
++        ("tab\tnew\nline", "tab-new-line"),
++    ],
++)
++def test_slugify(title, expected):
++    assert slugify(title) == expected
++
++
++def test_result_has_no_leading_or_trailing_dash_and_no_double_dash():
++    result = slugify("  -- weird ** input -- ")
++    assert result == "weird-input"
++    assert not result.startswith("-") and not result.endswith("-")
++    assert "--" not in result

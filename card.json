@@ -1,0 +1,15 @@
+{
+  "receipt_no": "0002",
+  "date": "2026-11-07",
+  "claim": "A CLAUDE.md file makes Claude Code follow your project's rules.",
+  "source": "Viral Claude Code advice",
+  "prompt": "Add a new feature called slugify to this package (ticket PAY-4101) ...",
+  "time": "96 runs",
+  "cost": "$0.30",
+  "result": [
+    "+ With CLAUDE.md: rules followed 24/24",
+    "- Without it: 0/24. It can't guess them",
+    "- Habits already in code: copied 21/24"
+  ],
+  "verdict": "TRUE"
+}

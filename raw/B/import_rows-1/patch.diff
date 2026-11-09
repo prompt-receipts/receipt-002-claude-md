@@ -1,0 +1,73 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/importer.py b/app/features/importer.py
+--- a/app/features/importer.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/importer.py	2026-11-07 12:18:01.371039446 -0700
+@@ -0,0 +1,30 @@
++"""Row importer: parses 'name,amount' lines into (name, cents) tuples."""
++from app.audit import audit
++from app.errors import ValidationError
++from app.money import parse_money
++
++
++def import_rows(lines):
++    """Parse 'name,amount' lines (amount like '10.50').
++
++    Returns a list of (name, cents) tuples for valid lines, in input order.
++    Invalid lines are skipped and each one is recorded via audit("import_row_skipped")
++    with the line and the reason, so an operator can see what was dropped.
++    """
++    rows = []
++    for line in lines:
++        fields = line.split(",")
++        if len(fields) != 2:
++            audit("import_row_skipped", line=line, reason="wrong number of fields")
++            continue
++        name = fields[0].strip()
++        if not name:
++            audit("import_row_skipped", line=line, reason="empty name")
++            continue
++        try:
++            cents = parse_money(fields[1])
++        except ValidationError:
++            audit("import_row_skipped", line=line, reason="invalid amount")
++            continue
++        rows.append((name, cents))
++    return rows
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_importer.py b/tests/test_importer.py
+--- a/tests/test_importer.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_importer.py	2026-11-07 12:18:03.244978016 -0700
+@@ -0,0 +1,35 @@
++from app.audit import EVENTS
++from app.features.importer import import_rows
++
++
++def setup_function():
++    EVENTS.clear()
++
++
++def test_valid_rows_in_order():
++    rows = import_rows(["Ann,10.50", "Bob,$3", "Cy,0.5"])
++    assert rows == [("Ann", 1050), ("Bob", 300), ("Cy", 50)]
++    assert EVENTS == []
++
++
++def test_skips_wrong_field_count():
++    rows = import_rows(["Ann", "Ann,1,2", "Bob,1.00"])
++    assert rows == [("Bob", 100)]
++    assert [e["reason"] for e in EVENTS] == ["wrong number of fields", "wrong number of fields"]
++
++
++def test_skips_empty_name():
++    rows = import_rows([" ,5.00", "Ann,5.00"])
++    assert rows == [("Ann", 500)]
++    assert EVENTS == [{"event": "import_row_skipped", "line": " ,5.00", "reason": "empty name"}]
++
++
++def test_skips_invalid_amount():
++    rows = import_rows(["Ann,abc", "Bob,1.234", "Cy,-2", "Dee,2.00"])
++    assert rows == [("Dee", 200)]
++    assert [e["line"] for e in EVENTS] == ["Ann,abc", "Bob,1.234", "Cy,-2"]
++    assert all(e["reason"] == "invalid amount" for e in EVENTS)
++
++
++def test_empty_input():
++    assert import_rows([]) == []

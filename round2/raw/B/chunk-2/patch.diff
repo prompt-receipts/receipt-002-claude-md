@@ -1,0 +1,79 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:31:49.908541928 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4106: chunking: add chunk(items, n) to split lists into consecutive chunks
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/chunking.py b/src/shop/ext/chunking.py
+--- a/src/shop/ext/chunking.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/chunking.py	2026-11-07 12:31:48.268600089 -0700
+@@ -0,0 +1,16 @@
++"""Split sequences into consecutive chunks."""
++
++
++def chunk(items, n):
++    """Split ``items`` into consecutive lists of length ``n``.
++
++    The last chunk may be shorter than ``n``. An empty input gives ``[]``.
++
++    Ticket: PAY-4106
++
++    Raises:
++        ValueError: If ``n`` is less than 1.
++    """
++    if n < 1:
++        raise ValueError(f"chunk size must be at least 1, got {n}")
++    return [list(items[i:i + n]) for i in range(0, len(items), n)]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_chunking_cases.py b/tests/test_chunking_cases.py
+--- a/tests/test_chunking_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_chunking_cases.py	2026-11-07 12:31:48.269600054 -0700
+@@ -0,0 +1,44 @@
++import pytest
++
++from shop.ext.chunking import chunk
++
++
++def test_even_split():
++    assert chunk([1, 2, 3, 4], 2) == [[1, 2], [3, 4]]
++
++
++def test_last_chunk_shorter():
++    assert chunk([1, 2, 3, 4, 5], 2) == [[1, 2], [3, 4], [5]]
++
++
++def test_chunk_size_larger_than_list():
++    assert chunk([1, 2], 10) == [[1, 2]]
++
++
++def test_chunk_size_one():
++    assert chunk(["a", "b"], 1) == [["a"], ["b"]]
++
++
++def test_empty_list_gives_empty_result():
++    assert chunk([], 3) == []
++
++
++def test_tuple_input_gives_lists():
++    assert chunk((1, 2, 3), 2) == [[1, 2], [3]]
++
++
++def test_input_is_not_modified():
++    items = [1, 2, 3]
++    chunk(items, 2)
++    assert items == [1, 2, 3]
++
++
++@pytest.mark.parametrize("n", [0, -1, -100])
++def test_n_below_one_raises(n):
++    with pytest.raises(ValueError):
++        chunk([1, 2, 3], n)
++
++
++def test_n_below_one_raises_even_for_empty_list():
++    with pytest.raises(ValueError):
++        chunk([], 0)

@@ -1,0 +1,81 @@
+{
+ "global_rule_visible_with_user_source": {
+  "answer": "[owner global rule, redacted]",
+  "global_rule_seen": true,
+  "answer_sha256_12": "3b361c4a0ebc",
+  "cost_usd": 0.00034949,
+  "init": {
+   "mcp_servers": [],
+   "agent_count": 15,
+   "skill_count": 0,
+   "plugin_names": [
+    "commit-commands",
+    "context7",
+    "pyright-lsp",
+    "pr-review-toolkit",
+    "frontend-design",
+    "cc-safety-net",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-privacy",
+    "cc-plugin-plugin-authoring"
+   ],
+   "memory_paths": null
+  }
+ },
+ "global_rule_visible_with_real_flags": {
+  "answer": "NONE",
+  "global_rule_seen": false,
+  "answer_sha256_12": null,
+  "cost_usd": 9.228e-05,
+  "init": {
+   "mcp_servers": [],
+   "agent_count": 5,
+   "skill_count": 0,
+   "plugin_names": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-privacy",
+    "cc-plugin-plugin-authoring"
+   ],
+   "memory_paths": null
+  }
+ },
+ "project_canary_present_condition_B_like": {
+  "answer": "QUOKKA-4471",
+  "global_rule_seen": null,
+  "answer_sha256_12": null,
+  "cost_usd": 0.00017212000000000003,
+  "init": {
+   "mcp_servers": [],
+   "agent_count": 5,
+   "skill_count": 0,
+   "plugin_names": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-privacy",
+    "cc-plugin-plugin-authoring"
+   ],
+   "memory_paths": null
+  }
+ },
+ "project_canary_absent_condition_A_like": {
+  "answer": "NONE",
+  "global_rule_seen": null,
+  "answer_sha256_12": null,
+  "cost_usd": 9.207e-05,
+  "init": {
+   "mcp_servers": [],
+   "agent_count": 5,
+   "skill_count": 0,
+   "plugin_names": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-privacy",
+    "cc-plugin-plugin-authoring"
+   ],
+   "memory_paths": null
+  }
+ },
+ "total_cost_usd": 0.00070596
+}

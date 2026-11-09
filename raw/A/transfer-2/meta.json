@@ -1,0 +1,58 @@
+{
+ "text": "I added `transfer(accounts, src, dst, amount)` in `app/features/transfers.py`. All 15 tests pass: the 8 existing and 7 new ones I added in `tests/test_transfers.py`.\n\n- **Success:** `accounts[src]` goes down and `accounts[dst]` goes up by the amount in cents. The transfer is recorded with `audit(\"transfer\", src=..., dst=..., amount_cents=...)`, and the function returns the amount in cents.\n- **Errors:** an unknown `src` or `dst` raises `NotFoundError`. `src == dst` and an invalid or non-positive amount raise `ValidationError`. Insufficient funds raises `InsufficientFunds`. All checks run before any balance is changed or anything is audited, so a failed call leaves the state untouched.\n- **Amount parsing:** I reused the existing `parse_money`, so `'5.25'`, `'$5.25'` and `'5'` are accepted. Strings with more than two decimal places, negatives and zero are rejected.\n\nChoices I made that you may want to change:\n- The error types come from the existing `errors.py` classes rather than new ones.\n- Recording uses the existing in-memory `audit()` log, since that is the only recording mechanism in the app.\n- The repo isn't a git repository, so I did not commit anything.\n- pytest wasn't installed, so I ran the tests from a virtualenv at `/tmp/venv-pr2`, outside the repo.",
+ "is_error": false,
+ "cost_usd": 0.0032733799999999993,
+ "num_turns": 8,
+ "input_tokens": 14,
+ "cache_creation_tokens": 5381,
+ "cache_read_tokens": 54228,
+ "output_tokens": 3307,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-9qzg1waa/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called transfers to this app. It should provide transfer(accounts, src, dst, amount), where accounts is a dict mapping account id to balance in cents and amount is a dollar string like '5.25'. Move that amount from src to dst. Raise an error, changing nothing, if src or dst is unknown, src equals dst, the amount is not a valid positive amount, or src has insufficient funds. Record the transfer."
+}

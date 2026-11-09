@@ -1,0 +1,58 @@
+{
+ "text": "I added `parse_kv` as a new `kvparse` module in the `shop` package, with tests. All 10 tests pass.\n\n**Changes**\n- `src/shop/kvparse.py`: new `parse_kv(line)` implementing the spec. It splits on `;`, skips segments that are empty after stripping, and splits each segment on the first `=` only. Keys and values are stripped, and a later duplicate key overwrites an earlier one. A non-empty segment with no `=` raises `ValueError`.\n- `tests/test_kvparse.py`: new file covering basic parsing, empty input, whitespace stripping, empty segments, first-`=` splitting, duplicate keys, empty values, and the two `ValueError` cases.\n- `CHANGELOG.md`: one line under \"Unreleased\" referencing PAY-4102.\n\n**Choices I made**\n- Module name is `kvparse.py` in `src/shop/`, which matches the existing layout. I did not re-export it from `shop/__init__.py`, since that file is empty; import it as `from shop.kvparse import parse_kv`.\n- The repo had no tests directory, so I created `tests/`. `pytest.ini` already sets `pythonpath = src`, so the tests import without extra config.\n- The spec didn't cover an empty key (e.g. `=1`). It is currently accepted and stored under `\"\"`. Say if you want that to raise instead.\n- pytest was not installed system-wide, so I ran the tests from a venv at `/tmp/kv-venv`, outside the repo.\n\nThe repo is not a git repository, so I did not commit anything.",
+ "is_error": false,
+ "cost_usd": 0.0026518600000000002,
+ "num_turns": 8,
+ "input_tokens": 12,
+ "cache_creation_tokens": 3671,
+ "cache_read_tokens": 42146,
+ "output_tokens": 2990,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-44gmfd_k/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called kvparse to this package (ticket PAY-4102). It should provide parse_kv(line), which parses 'a=1;b=2' style text into a dict of strings. Strip whitespace around keys and values, skip empty segments, split each segment on the first '=' only, let a later duplicate key win, and raise ValueError for a non-empty segment with no '='. Also add tests."
+}

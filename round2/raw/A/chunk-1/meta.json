@@ -1,0 +1,58 @@
+{
+ "text": "I added `chunk(items, n)` for PAY-4106. All 9 new tests pass.\n\n- **`src/shop/chunking.py`**: `chunk` returns consecutive slices of length `n`, with the last one possibly shorter. An empty input returns `[]`, and `n < 1` raises `ValueError`. It converts the input with `list()`, so any iterable works and the caller's list is never modified.\n- **`tests/test_chunking.py`**: covers even and uneven splits, `n` larger than the list, `n == 1`, empty input, zero and negative `n`, iterable input, and no mutation of the input. This is the repo's first tests directory, and `pytest.ini` already points at `src`, so the tests import `shop.chunking` directly.\n- **`CHANGELOG.md`**: added an entry under Unreleased.\n\nChoices I made that you may want to change:\n- I put the function in its own module `chunking.py`, following the separate `core.py` layout, rather than in `core.py` or `__init__.py`. Import it as `from shop.chunking import chunk`. It is not re-exported from `shop`, since `core.total` isn't either.\n- I did not commit anything.\n\npytest isn't installed on the system Python, which blocks global pip installs, so I ran the tests from a virtualenv at `/tmp/pr2-venv`, outside the repo.",
+ "is_error": false,
+ "cost_usd": 0.00241463,
+ "num_turns": 9,
+ "input_tokens": 12,
+ "cache_creation_tokens": 3403,
+ "cache_read_tokens": 41483,
+ "output_tokens": 2636,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-ixjnhzwo/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called chunking to this package (ticket PAY-4106). It should provide chunk(items, n), which splits a list into consecutive lists of length n, the last one possibly shorter. An empty list gives []. Raise ValueError if n is less than 1. Also add tests."
+}

@@ -1,0 +1,54 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/accounts.py b/app/features/accounts.py
+--- a/app/features/accounts.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/accounts.py	2026-11-07 12:07:44.912230573 -0700
+@@ -0,0 +1,16 @@
++"""Account management."""
++from app.audit import audit
++from app.errors import NotFoundError
++
++
++def close_account(accounts, account_id):
++    """Remove an account from ``accounts`` and return its balance in cents.
++
++    ``accounts`` maps account id to balance in integer cents. Raises
++    NotFoundError, leaving the dict unchanged, if the account does not exist.
++    """
++    if account_id not in accounts:
++        raise NotFoundError(f"no such account: {account_id!r}")
++    balance = accounts.pop(account_id)
++    audit("account_closed", account_id=account_id, balance_cents=balance)
++    return balance
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_accounts.py b/tests/test_accounts.py
+--- a/tests/test_accounts.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_accounts.py	2026-11-07 12:07:46.364183076 -0700
+@@ -0,0 +1,30 @@
++import pytest
++
++from app import audit as audit_mod
++from app.errors import AppError, NotFoundError
++from app.features.accounts import close_account
++
++
++def test_close_account_returns_balance_and_removes_it(monkeypatch):
++    monkeypatch.setattr(audit_mod, "EVENTS", [])
++    accounts = {"a1": 1250, "a2": 0}
++    assert close_account(accounts, "a1") == 1250
++    assert accounts == {"a2": 0}
++
++
++def test_close_missing_account_raises_and_leaves_dict_unchanged(monkeypatch):
++    monkeypatch.setattr(audit_mod, "EVENTS", [])
++    accounts = {"a1": 500}
++    with pytest.raises(NotFoundError) as exc:
++        close_account(accounts, "nope")
++    assert isinstance(exc.value, AppError)
++    assert accounts == {"a1": 500}
++
++
++def test_close_account_records_audit_event(monkeypatch):
++    events = []
++    monkeypatch.setattr(audit_mod, "EVENTS", events)
++    close_account({"a1": 42}, "a1")
++    assert events == [
++        {"event": "account_closed", "account_id": "a1", "balance_cents": 42}
++    ]

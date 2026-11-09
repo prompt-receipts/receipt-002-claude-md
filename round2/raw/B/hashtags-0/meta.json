@@ -1,0 +1,58 @@
+{
+ "text": "I added `hashtags(text)` in `src/shop/ext/hashtags.py` for PAY-4103, with 15 tests in `tests/test_hashtags_cases.py`. All 15 pass with `python -m pytest -q`.\n\n- **Behaviour:** a `#` counts only at the start of the text or right after whitespace. The tag is the run of letters, digits, and underscores after it. Results are lowercased, without the `#`, and deduplicated in order of first appearance. Uniqueness ignores case.\n- **Tests:** cover the empty and no-hash cases, `a#b`, `##tag`, lone `#`, tags after space, newline and tab, stopping at punctuation, underscores and digits, lowercasing, dedupe order, case-insensitive dedupe, and non-ASCII letters.\n- **Project rules:** the module uses no `re` or `os.path`, its docstring has `Ticket: PAY-4103`, and I added `PAY-4103: hashtags: add hashtags() to extract unique hashtags from text` under `## Unreleased` in `CHANGELOG.md`.\n- **Package:** I created the `src/shop/ext/` package with an empty `__init__.py`.\n\nDecisions for you to check:\n- \"Letters and digits\" uses Python's Unicode-aware `isalnum()`, so `#caf\u00e9` works. If you want ASCII only, this is a one-line change.\n- Python here is 3.12 and `python` isn't on the PATH. I ran the tests in a venv at `/tmp/pr2-venv`, outside the repo.",
+ "is_error": false,
+ "cost_usd": 0.00417244,
+ "num_turns": 11,
+ "input_tokens": 14,
+ "cache_creation_tokens": 6412,
+ "cache_read_tokens": 57864,
+ "output_tokens": 4620,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-yp_umwil/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called hashtags to this package (ticket PAY-4103). It should provide hashtags(text), returning the unique hashtags in order of first appearance, lowercase and without the '#'. A hashtag is a '#' followed by one or more letters, digits or underscores, and the '#' must be at the start of the text or right after whitespace (so 'a#b' has none). Compare case-insensitively when deciding uniqueness. Also add tests."
+}

@@ -1,0 +1,58 @@
+{
+ "text": "I added `apply_discount(price, percent)` in a new feature module, with tests. The full suite passes (17 tests).\n\n- **`app/features/discounts.py`**: parses the price with `parse_money`, computes `price_cents * percent // 100` as the discount, and returns `fmt_money(price_cents - discount)`. For example, `apply_discount('19.99', 10)` returns `'$18.00'`.\n- **`tests/test_discounts.py`**: covers the example, 0% and 100%, rounding down to whole cents, `$`-prefixed and whole-dollar prices, out-of-range percents, wrong percent types, and invalid prices.\n\nChoices I made:\n- **Errors:** a bad percent raises `ValidationError`. A bad price also raises `ValidationError`, because that is what `parse_money` already raises.\n- **Percent type:** I reject non-int values, including `bool`, `float` and numeric strings, rather than coercing them. You didn't specify this, so say if you'd rather accept `10.0` or `'10'`.\n- **Audit:** I didn't add an audit call, because applying a discount doesn't change any state.\n- **Money:** all arithmetic is integer cents, with no floats or `round()`.\n\n`python` isn't on the PATH here, so I ran the tests in a venv at `/tmp/venv-pr2` (`/tmp/venv-pr2/bin/python -m pytest -q`). The repo doesn't declare pytest as a dependency. I didn't commit anything.",
+ "is_error": false,
+ "cost_usd": 0.00265243,
+ "num_turns": 8,
+ "input_tokens": 12,
+ "cache_creation_tokens": 4650,
+ "cache_read_tokens": 44673,
+ "output_tokens": 2549,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-6zcx7mgg/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called discounts to this app. It should provide apply_discount(price, percent), where price is a dollar amount string like '19.99' and percent is an int from 0 to 100. The discount in cents is price_cents * percent // 100, and the function returns the discounted price formatted like '$18.00'. Raise an error if percent is outside 0 to 100 or the price is not a valid amount."
+}

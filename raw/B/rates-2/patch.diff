@@ -1,0 +1,55 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/rates.py b/app/features/rates.py
+--- a/app/features/rates.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/rates.py	2026-11-07 12:11:20.200184178 -0700
+@@ -0,0 +1,16 @@
++"""Exchange rate lookups."""
++import re
++
++from app.errors import ValidationError
++from app.http import get_json
++
++BASE_URL = "https://api.example.test/rates/"
++_CURRENCY_RE = re.compile(r"[A-Z]{3}")
++
++
++def fetch_rate(currency):
++    """Return the cents_per_unit rate for a three-letter uppercase currency code."""
++    if not isinstance(currency, str) or not _CURRENCY_RE.fullmatch(currency):
++        raise ValidationError("currency must be exactly three uppercase letters")
++    data = get_json(BASE_URL + currency)
++    return data["cents_per_unit"]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_rates.py b/tests/test_rates.py
+--- a/tests/test_rates.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_rates.py	2026-11-07 12:11:21.624137549 -0700
+@@ -0,0 +1,31 @@
++import pytest
++
++from app.errors import AppError, ValidationError
++from app.features import rates
++from app.features.rates import fetch_rate
++
++
++def test_fetch_rate_returns_cents_per_unit(monkeypatch):
++    calls = []
++
++    def fake_get_json(url):
++        calls.append(url)
++        return {"cents_per_unit": 92}
++
++    monkeypatch.setattr(rates, "get_json", fake_get_json)
++    assert fetch_rate("EUR") == 92
++    assert calls == ["https://api.example.test/rates/EUR"]
++
++
++@pytest.mark.parametrize("bad", ["usd", "US", "USDX", "U5D", "", " USD", "USD ", "ÜSD", None, 123])
++def test_invalid_currency_raises_without_request(monkeypatch, bad):
++    def fail(url):
++        raise AssertionError("no request should be made")
++
++    monkeypatch.setattr(rates, "get_json", fail)
++    with pytest.raises(ValidationError):
++        fetch_rate(bad)
++
++
++def test_validation_error_is_app_error():
++    assert issubclass(ValidationError, AppError)

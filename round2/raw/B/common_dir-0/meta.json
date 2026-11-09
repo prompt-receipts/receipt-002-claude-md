@@ -1,0 +1,58 @@
+{
+ "text": "I added `common_dir(paths)` as the `commondir` feature under ticket PAY-4105. The test suite passes: 10 tests, run with `python -m pytest -q`.\n\n**Files**\n- `src/shop/ext/commondir.py`: the new module. It has the `common_dir` function, and its docstring includes `Ticket: PAY-4105`.\n- `src/shop/ext/__init__.py`: an empty file that makes `ext` a package.\n- `tests/test_commondir_cases.py`: the tests. The `tests/` directory did not exist, so I created it.\n- `CHANGELOG.md`: one line under `## Unreleased`: `- PAY-4105: commondir: add common_dir to find the deepest shared directory of POSIX paths`.\n\n**Choices I made**\n- **Each path counts as a file.** The function uses each path's containing directory as the candidate. So `common_dir([\"/a/b/c\"])` returns `/a/b`, and `common_dir([\"/a/b\", \"/a/b/c\"])` returns `/a`. The request said \"file paths\" and \"directory that contains\", so I read it that way. If you meant the paths themselves to be candidate directories, the single-path and nested-path results would change; the `/a/bc/x` and `/a/bd/y` example gives `/a` either way.\n- **Implementation.** It compares `pathlib.PurePosixPath` components and rebuilds the result with `str(PurePosixPath(...))`, so there is no trailing slash and the root comes out as `/`. It uses no `re` and no `os.path`.\n- **No validation of absolute paths.** The request said the inputs are absolute, so I did not add a check for relative paths. They would produce a relative result rather than raising.\n\n**Environment note:** `python` was not on the PATH, and the system Python had no pytest. I installed pytest into a venv at `/tmp/pr2-venv` and ran the tests with that interpreter. The project itself has no dependency file to install from.",
+ "is_error": false,
+ "cost_usd": 0.005347490000000001,
+ "num_turns": 8,
+ "input_tokens": 16,
+ "cache_creation_tokens": 7924,
+ "cache_read_tokens": 61759,
+ "output_tokens": 6287,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-rkw8iysp/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called commondir to this package (ticket PAY-4105). It should provide common_dir(paths), where paths is a non-empty list of absolute POSIX file paths. Return the deepest directory that contains all of them, as a string without a trailing slash except for the root '/'. Compare whole path components, so '/a/bc/x' and '/a/bd/y' share '/a'. Raise ValueError for an empty list. Also add tests."
+}

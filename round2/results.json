@@ -1,0 +1,1219 @@
+{
+ "summary": {
+  "name": "receipt-002-claude-md round 2: rules the code cannot reveal",
+  "model": "haiku",
+  "runs_per_task": 3,
+  "tasks": 8,
+  "conditions": {
+   "A": {
+    "n": 24,
+    "cost_usd": 0.07076917,
+    "mean_turns": 8.958333333333334,
+    "out_of_tree_runs": 0,
+    "helpers_modified_runs": 5,
+    "hidden_pass": {
+     "passes": 21,
+     "rate": 0.875,
+     "wilson95": [
+      0.6899571185214243,
+      0.9565574496068442
+     ]
+    },
+    "conventions_pass": {
+     "passes": 0,
+     "rate": 0.0,
+     "wilson95": [
+      0.0,
+      0.13798057582897535
+     ]
+    },
+    "both": {
+     "passes": 0,
+     "rate": 0.0,
+     "wilson95": [
+      0.0,
+      0.13798057582897535
+     ]
+    }
+   },
+   "B": {
+    "n": 24,
+    "cost_usd": 0.09124582,
+    "mean_turns": 9.166666666666666,
+    "out_of_tree_runs": 0,
+    "helpers_modified_runs": 0,
+    "hidden_pass": {
+     "passes": 23,
+     "rate": 0.9583333333333334,
+     "wilson95": [
+      0.7975777375115778,
+      0.992606734645195
+     ]
+    },
+    "conventions_pass": {
+     "passes": 24,
+     "rate": 1.0,
+     "wilson95": [
+      0.8620194241710247,
+      1.0
+     ]
+    },
+    "both": {
+     "passes": 23,
+     "rate": 0.9583333333333334,
+     "wilson95": [
+      0.7975777375115778,
+      0.992606734645195
+     ]
+    }
+   }
+  },
+  "per_check": {
+   "changelog": {
+    "A": [
+     0,
+     24
+    ],
+    "B": [
+     24,
+     24
+    ]
+   },
+   "docstring": {
+    "A": [
+     0,
+     24
+    ],
+    "B": [
+     24,
+     24
+    ]
+   },
+   "location": {
+    "A": [
+     0,
+     24
+    ],
+    "B": [
+     24,
+     24
+    ]
+   },
+   "stdlib": {
+    "A": [
+     12,
+     18
+    ],
+    "B": [
+     18,
+     18
+    ]
+   },
+   "tests_file": {
+    "A": [
+     0,
+     24
+    ],
+    "B": [
+     24,
+     24
+    ]
+   }
+  },
+  "per_task": {
+   "slugify": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 0,
+     "both": 0
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "parse_kv": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 0,
+     "both": 0
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "hashtags": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 0,
+     "both": 0
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "basename": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 0,
+     "both": 0
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "common_dir": {
+    "A": {
+     "hidden_pass": 0,
+     "conventions_pass": 0,
+     "both": 0
+    },
+    "B": {
+     "hidden_pass": 2,
+     "conventions_pass": 3,
+     "both": 2
+    }
+   },
+   "chunk": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 0,
+     "both": 0
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "phone": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 0,
+     "both": 0
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "moving_average": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 0,
+     "both": 0
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   }
+  },
+  "compare_hidden_pass": {
+   "A": "21/24",
+   "B": "23/24",
+   "diff_B_minus_A": 0.08333333333333337,
+   "task_bootstrap95": [
+    0.0,
+    0.25
+   ],
+   "fisher_p": 0.6085106382978723
+  },
+  "compare_conventions_pass": {
+   "A": "0/24",
+   "B": "24/24",
+   "diff_B_minus_A": 1.0,
+   "task_bootstrap95": [
+    1.0,
+    1.0
+   ],
+   "fisher_p": 6.202011224319716e-14
+  },
+  "compare_both": {
+   "A": "0/24",
+   "B": "23/24",
+   "diff_B_minus_A": 0.9583333333333334,
+   "task_bootstrap95": [
+    0.875,
+    1.0
+   ],
+   "fisher_p": 1.5505028060799289e-12
+  },
+  "limits": [
+   "One model (a small, fast one), one small fixture repo, 8 short tasks, 3 runs each (round 2).",
+   "The conventions are invented for this fixture; real CLAUDE.md files hold different rules.",
+   "Convention checks are static (AST) checks on the files the agent added; they do not judge quality.",
+   "Says nothing about other models, large repos, or long sessions."
+  ],
+  "cli_version": "2.1.319 (Claude Code)"
+ },
+ "rows": [
+  {
+   "condition": "A",
+   "task": "slugify",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [
+    "src/shop/core.py"
+   ],
+   "cost_usd": 0.0027179900000000004,
+   "turns": 7,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "slugify",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [
+    "src/shop/core.py"
+   ],
+   "cost_usd": 0.0023448699999999998,
+   "turns": 6,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "slugify",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [
+    "src/shop/__init__.py"
+   ],
+   "cost_usd": 0.00262005,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "B",
+   "task": "slugify",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0032624699999999995,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "slugify",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00346374,
+   "turns": 7,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "slugify",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00357751,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "parse_kv",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0028006899999999998,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "parse_kv",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0026820999999999998,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "parse_kv",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0026518600000000002,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "B",
+   "task": "parse_kv",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0038375200000000005,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "parse_kv",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0031810499999999995,
+   "turns": 7,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "parse_kv",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0029819900000000003,
+   "turns": 7,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "hashtags",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0035223599999999996,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "hashtags",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [
+    "src/shop/core.py"
+   ],
+   "cost_usd": 0.0036671100000000003,
+   "turns": 11,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "hashtags",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [
+    "src/shop/core.py"
+   ],
+   "cost_usd": 0.00326199,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "B",
+   "task": "hashtags",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00417244,
+   "turns": 11,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "hashtags",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00432243,
+   "turns": 11,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "hashtags",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00409324,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "basename",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0035344099999999995,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "basename",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00317787,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "basename",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00328699,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "B",
+   "task": "basename",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.004087660000000001,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "basename",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0038296100000000002,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "basename",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00413292,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "common_dir",
+   "run": 0,
+   "hidden_pass": false,
+   "hidden_reason": "1 failed, 1 passed in 0.41s",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0029446700000000004,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "common_dir",
+   "run": 1,
+   "hidden_pass": false,
+   "hidden_reason": "1 failed, 1 passed in 0.42s",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0035596000000000004,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "common_dir",
+   "run": 2,
+   "hidden_pass": false,
+   "hidden_reason": "1 failed, 1 passed in 0.41s",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00306997,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "B",
+   "task": "common_dir",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.005347490000000001,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "common_dir",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00567755,
+   "turns": 12,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "common_dir",
+   "run": 2,
+   "hidden_pass": false,
+   "hidden_reason": "1 failed, 1 passed in 0.42s",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0043379,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "chunk",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0024412100000000005,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "chunk",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00241463,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "chunk",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00234438,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "B",
+   "task": "chunk",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00349999,
+   "turns": 12,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "chunk",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0031503399999999997,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "chunk",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00310937,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "phone",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0030876200000000006,
+   "turns": 11,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "phone",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0036761299999999997,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "phone",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "stdlib": true,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00370528,
+   "turns": 11,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "B",
+   "task": "phone",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0042627,
+   "turns": 12,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "phone",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.003547,
+   "turns": 11,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "phone",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "stdlib": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0040016900000000005,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "moving_average",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00231539,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "moving_average",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00239492,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "moving_average",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": false,
+    "tests_file": false,
+    "docstring": false,
+    "changelog": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00254708,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "B",
+   "task": "moving_average",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0029298700000000002,
+   "turns": 7,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "moving_average",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0033476599999999997,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "moving_average",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "location": true,
+    "tests_file": true,
+    "docstring": true,
+    "changelog": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0030916800000000003,
+   "turns": 7,
+   "out_of_tree": [],
+   "both": true
+  }
+ ]
+}

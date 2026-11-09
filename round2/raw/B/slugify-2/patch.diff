@@ -1,0 +1,76 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:26:17.124782684 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4101: slugify: add slugify(title) to convert titles into URL slugs
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/slugify.py b/src/shop/ext/slugify.py
+--- a/src/shop/ext/slugify.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/slugify.py	2026-11-07 12:26:10.596211679 -0700
+@@ -0,0 +1,23 @@
++"""URL slug generation."""
++
++
++def slugify(title):
++    """Convert a title into a URL slug.
++
++    The text is lowercased, every run of characters that are not ASCII
++    letters or digits is replaced with a single '-', and leading and
++    trailing '-' are stripped.
++
++    Ticket: PAY-4101
++    """
++    parts = []
++    pending_separator = False
++    for char in title.lower():
++        if char.isascii() and char.isalnum():
++            if pending_separator and parts:
++                parts.append("-")
++            parts.append(char)
++            pending_separator = False
++        else:
++            pending_separator = True
++    return "".join(parts)
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_slugify_cases.py b/tests/test_slugify_cases.py
+--- a/tests/test_slugify_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_slugify_cases.py	2026-11-07 12:26:16.728795673 -0700
+@@ -0,0 +1,34 @@
++import pytest
++
++from shop.ext.slugify import slugify
++
++
++@pytest.mark.parametrize(
++    "title, expected",
++    [
++        ("Hello World", "hello-world"),
++        ("  Hello   World  ", "hello-world"),
++        ("Hello, World!", "hello-world"),
++        ("a---b", "a-b"),
++        ("--leading and trailing--", "leading-and-trailing"),
++        ("Python 3.12 Release", "python-3-12-release"),
++        ("ABC123", "abc123"),
++        ("café au lait", "caf-au-lait"),
++        ("naïve", "na-ve"),
++        ("日本語", ""),
++        ("", ""),
++        ("!!!", ""),
++        ("already-a-slug", "already-a-slug"),
++        ("tab\there\nnewline", "tab-here-newline"),
++    ],
++)
++def test_slugify(title, expected):
++    assert slugify(title) == expected
++
++
++def test_output_contains_only_ascii_lowercase_digits_and_single_hyphens():
++    result = slugify("Ünïcode -- Mixed_Case 2024 & more!!")
++    assert result == "n-code-mixed-case-2024-more"
++    assert all(c.isascii() and (c.isdigit() or c.islower() or c == "-") for c in result)
++    assert "--" not in result
++    assert not result.startswith("-") and not result.endswith("-")

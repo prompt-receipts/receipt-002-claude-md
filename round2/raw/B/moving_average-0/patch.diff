@@ -1,0 +1,91 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:33:28.846340216 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4108: movavg: add moving_average helper
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/__init__.py b/src/shop/ext/__init__.py
+--- a/src/shop/ext/__init__.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/__init__.py	2026-11-07 12:33:28.829054626 -0700
+@@ -0,0 +1 @@
++"""Extension modules for shop."""
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/movavg.py b/src/shop/ext/movavg.py
+--- a/src/shop/ext/movavg.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/movavg.py	2026-11-07 12:33:28.831054556 -0700
+@@ -0,0 +1,18 @@
++"""Moving average over a sequence of numbers."""
++
++
++def moving_average(nums, k):
++    """Return the mean of every window of k consecutive numbers.
++
++    Returns a list of floats with one entry per window, so the result has
++    len(nums) - k + 1 elements. Raises ValueError if k is less than 1 or
++    larger than len(nums).
++
++    Ticket: PAY-4108
++    """
++    values = list(nums)
++    if k < 1:
++        raise ValueError("k must be at least 1")
++    if k > len(values):
++        raise ValueError("k must not be larger than the number of values")
++    return [sum(values[i:i + k]) / k for i in range(len(values) - k + 1)]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_movavg_cases.py b/tests/test_movavg_cases.py
+--- a/tests/test_movavg_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_movavg_cases.py	2026-11-07 12:33:28.832054521 -0700
+@@ -0,0 +1,49 @@
++import pytest
++
++from shop.ext.movavg import moving_average
++
++
++def test_basic_windows():
++    """Ticket: PAY-4108"""
++    assert moving_average([1, 2, 3, 4, 5], 2) == [1.5, 2.5, 3.5, 4.5]
++
++
++def test_window_equal_to_length():
++    """Ticket: PAY-4108"""
++    assert moving_average([2, 4, 6], 3) == [4.0]
++
++
++def test_window_of_one_returns_floats():
++    """Ticket: PAY-4108"""
++    result = moving_average([1, 2, 3], 1)
++    assert result == [1.0, 2.0, 3.0]
++    assert all(isinstance(x, float) for x in result)
++
++
++def test_accepts_tuple_and_floats():
++    """Ticket: PAY-4108"""
++    assert moving_average((0.5, 1.5, 2.5), 2) == [1.0, 2.0]
++
++
++def test_k_zero_raises():
++    """Ticket: PAY-4108"""
++    with pytest.raises(ValueError):
++        moving_average([1, 2, 3], 0)
++
++
++def test_negative_k_raises():
++    """Ticket: PAY-4108"""
++    with pytest.raises(ValueError):
++        moving_average([1, 2, 3], -1)
++
++
++def test_k_larger_than_length_raises():
++    """Ticket: PAY-4108"""
++    with pytest.raises(ValueError):
++        moving_average([1, 2, 3], 4)
++
++
++def test_empty_input_raises():
++    """Ticket: PAY-4108"""
++    with pytest.raises(ValueError):
++        moving_average([], 1)

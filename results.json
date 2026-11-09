@@ -1,0 +1,1173 @@
+{
+ "summary": {
+  "name": "receipt-002-claude-md: does a CLAUDE.md file change what an AI agent does?",
+  "model": "haiku",
+  "runs_per_task": 3,
+  "tasks": 8,
+  "conditions": {
+   "A": {
+    "n": 24,
+    "cost_usd": 0.06801022,
+    "mean_turns": 8.75,
+    "out_of_tree_runs": 0,
+    "helpers_modified_runs": 0,
+    "hidden_pass": {
+     "passes": 24,
+     "rate": 1.0,
+     "wilson95": [
+      0.8620194241710247,
+      1.0
+     ]
+    },
+    "conventions_pass": {
+     "passes": 21,
+     "rate": 0.875,
+     "wilson95": [
+      0.6899571185214243,
+      0.9565574496068442
+     ]
+    },
+    "both": {
+     "passes": 21,
+     "rate": 0.875,
+     "wilson95": [
+      0.6899571185214243,
+      0.9565574496068442
+     ]
+    }
+   },
+   "B": {
+    "n": 24,
+    "cost_usd": 0.07072588,
+    "mean_turns": 8.75,
+    "out_of_tree_runs": 0,
+    "helpers_modified_runs": 0,
+    "hidden_pass": {
+     "passes": 24,
+     "rate": 1.0,
+     "wilson95": [
+      0.8620194241710247,
+      1.0
+     ]
+    },
+    "conventions_pass": {
+     "passes": 24,
+     "rate": 1.0,
+     "wilson95": [
+      0.8620194241710247,
+      1.0
+     ]
+    },
+    "both": {
+     "passes": 24,
+     "rate": 1.0,
+     "wilson95": [
+      0.8620194241710247,
+      1.0
+     ]
+    }
+   }
+  },
+  "per_check": {
+   "audit": {
+    "A": [
+     9,
+     12
+    ],
+    "B": [
+     12,
+     12
+    ]
+   },
+   "clock": {
+    "A": [
+     3,
+     3
+    ],
+    "B": [
+     3,
+     3
+    ]
+   },
+   "errors": {
+    "A": [
+     15,
+     15
+    ],
+    "B": [
+     15,
+     15
+    ]
+   },
+   "http": {
+    "A": [
+     3,
+     3
+    ],
+    "B": [
+     3,
+     3
+    ]
+   },
+   "money": {
+    "A": [
+     15,
+     15
+    ],
+    "B": [
+     15,
+     15
+    ]
+   },
+   "money_fmt": {
+    "A": [
+     6,
+     6
+    ],
+    "B": [
+     6,
+     6
+    ]
+   },
+   "no_print": {
+    "A": [
+     0,
+     3
+    ],
+    "B": [
+     3,
+     3
+    ]
+   },
+   "placement": {
+    "A": [
+     24,
+     24
+    ],
+    "B": [
+     24,
+     24
+    ]
+   }
+  },
+  "per_task": {
+   "refunds": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "expiry": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "rates": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "discounts": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "close_account": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "import_rows": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 0,
+     "both": 0
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "monthly_total": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   },
+   "transfer": {
+    "A": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    },
+    "B": {
+     "hidden_pass": 3,
+     "conventions_pass": 3,
+     "both": 3
+    }
+   }
+  },
+  "compare_hidden_pass": {
+   "A": "24/24",
+   "B": "24/24",
+   "diff_B_minus_A": 0.0,
+   "task_bootstrap95": [
+    0.0,
+    0.0
+   ],
+   "fisher_p": 1.0
+  },
+  "compare_conventions_pass": {
+   "A": "21/24",
+   "B": "24/24",
+   "diff_B_minus_A": 0.125,
+   "task_bootstrap95": [
+    0.0,
+    0.375
+   ],
+   "fisher_p": 0.23404255319148937
+  },
+  "compare_both": {
+   "A": "21/24",
+   "B": "24/24",
+   "diff_B_minus_A": 0.125,
+   "task_bootstrap95": [
+    0.0,
+    0.375
+   ],
+   "fisher_p": 0.23404255319148937
+  },
+  "limits": [
+   "One model (a small, fast one), one small fixture repo, 8 short tasks, 3 runs each.",
+   "The conventions are invented for this fixture; real CLAUDE.md files hold different rules.",
+   "Convention checks are static (AST) checks on the files the agent added; they do not judge quality.",
+   "Says nothing about other models, large repos, or long sessions."
+  ],
+  "cli_version": "2.1.319 (Claude Code)"
+ },
+ "rows": [
+  {
+   "condition": "A",
+   "task": "refunds",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0030074800000000003,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "refunds",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0031974300000000002,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "refunds",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0036668299999999994,
+   "turns": 12,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "refunds",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00303288,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "refunds",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00297343,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "refunds",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0028909200000000004,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "expiry",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "clock": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00259854,
+   "turns": 7,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "expiry",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "clock": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0025058899999999998,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "expiry",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "clock": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0026833000000000004,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "expiry",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "clock": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0031296399999999995,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "expiry",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "clock": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00299776,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "expiry",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "clock": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00305696,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "rates",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "http": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00248516,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "rates",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "http": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0028115700000000006,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "rates",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "http": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00257981,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "rates",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "http": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00298999,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "rates",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "http": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00295395,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "rates",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "http": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00261606,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "discounts",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00264304,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "discounts",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0029718199999999996,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "discounts",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00315928,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "discounts",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00332793,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "discounts",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00287009,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "discounts",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00265243,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "close_account",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0023041900000000002,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "close_account",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0023793900000000003,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "close_account",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0030759999999999997,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "close_account",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0024626500000000003,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "close_account",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0031550400000000004,
+   "turns": 10,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "close_account",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0024845300000000004,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "import_rows",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": false,
+    "no_print": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.0027041,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "import_rows",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": false,
+    "no_print": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00309892,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "A",
+   "task": "import_rows",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": false,
+    "no_print": false
+   },
+   "conventions_pass": false,
+   "helpers_modified": [],
+   "cost_usd": 0.00272139,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": false
+  },
+  {
+   "condition": "B",
+   "task": "import_rows",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "no_print": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0032112300000000002,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "import_rows",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "no_print": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0032022200000000004,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "import_rows",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "no_print": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00372733,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "monthly_total",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0020579900000000004,
+   "turns": 7,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "monthly_total",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0019551,
+   "turns": 7,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "monthly_total",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0023529199999999997,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "monthly_total",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0025283899999999997,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "monthly_total",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00257462,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "monthly_total",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "money_fmt": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00234413,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "transfer",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00414682,
+   "turns": 12,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "transfer",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00362987,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "A",
+   "task": "transfer",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0032733799999999993,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "transfer",
+   "run": 0,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00321885,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "transfer",
+   "run": 1,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.00334235,
+   "turns": 9,
+   "out_of_tree": [],
+   "both": true
+  },
+  {
+   "condition": "B",
+   "task": "transfer",
+   "run": 2,
+   "hidden_pass": true,
+   "hidden_reason": "ok",
+   "checks": {
+    "placement": true,
+    "money": true,
+    "audit": true,
+    "errors": true
+   },
+   "conventions_pass": true,
+   "helpers_modified": [],
+   "cost_usd": 0.0029825,
+   "turns": 8,
+   "out_of_tree": [],
+   "both": true
+  }
+ ]
+}

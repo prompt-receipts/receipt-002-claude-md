@@ -1,0 +1,82 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/refunds.py b/app/features/refunds.py
+--- a/app/features/refunds.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/refunds.py	2026-11-07 12:08:34.228617114 -0700
+@@ -0,0 +1,30 @@
++"""Refund calculation."""
++from app.audit import audit
++from app.errors import ValidationError
++from app.money import parse_money
++
++
++def refund_amount(price, fee_bps):
++    """Return the refund in integer cents for a price string and a fee in basis points.
++
++    refund = price_cents - (price_cents * fee_bps // 10000)
++
++    ``price`` is a dollar amount string such as '12.50'. ``fee_bps`` must be an
++    int from 0 to 10000 inclusive. Raises ValidationError on bad input.
++    """
++    price_cents = parse_money(price)
++    if isinstance(fee_bps, bool) or not isinstance(fee_bps, int):
++        raise ValidationError(f"fee_bps must be an integer: {fee_bps!r}")
++    if not 0 <= fee_bps <= 10000:
++        raise ValidationError(f"fee_bps out of range 0..10000: {fee_bps!r}")
++
++    fee_cents = price_cents * fee_bps // 10000
++    refund_cents = price_cents - fee_cents
++    audit(
++        "refund_calculated",
++        price_cents=price_cents,
++        fee_bps=fee_bps,
++        fee_cents=fee_cents,
++        refund_cents=refund_cents,
++    )
++    return refund_cents
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_refunds.py b/tests/test_refunds.py
+--- a/tests/test_refunds.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_refunds.py	2026-11-07 12:08:36.285549808 -0700
+@@ -0,0 +1,44 @@
++import pytest
++
++from app.audit import EVENTS
++from app.errors import AppError, ValidationError
++from app.features.refunds import refund_amount
++
++
++def test_no_fee_returns_full_price_in_cents():
++    assert refund_amount("12.50", 0) == 1250
++
++
++def test_fee_is_floored_in_cents():
++    # 1250 * 250 // 10000 = 31 (31.25 floored); refund = 1219
++    assert refund_amount("12.50", 250) == 1219
++
++
++def test_full_fee_refunds_nothing():
++    assert refund_amount("12.50", 10000) == 0
++
++
++def test_dollar_sign_and_short_decimal_accepted():
++    assert refund_amount("$12.5", 0) == 1250
++    assert refund_amount("12", 0) == 1200
++
++
++@pytest.mark.parametrize("fee", [-1, 10001, 1.5, True, None, "100"])
++def test_bad_fee_raises(fee):
++    with pytest.raises(ValidationError):
++        refund_amount("12.50", fee)
++
++
++@pytest.mark.parametrize("price", ["abc", "", "1.234", "-5", "12.5.0"])
++def test_bad_price_raises(price):
++    with pytest.raises(AppError):
++        refund_amount(price, 100)
++
++
++def test_calculation_is_audited():
++    before = len(EVENTS)
++    refund_amount("10.00", 500)
++    new = EVENTS[before:]
++    assert len(new) == 1
++    assert new[0]["event"] == "refund_calculated"
++    assert new[0]["refund_cents"] == 950

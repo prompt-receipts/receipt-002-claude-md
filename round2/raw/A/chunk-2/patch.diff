@@ -1,0 +1,78 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:38:33.144527603 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `chunk(items, n)` to split a list into consecutive chunks of length `n` (PAY-4106).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/chunking.py b/src/shop/chunking.py
+--- a/src/shop/chunking.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/chunking.py	2026-11-07 12:38:30.972601909 -0700
+@@ -0,0 +1,10 @@
++def chunk(items, n):
++    """Split ``items`` into consecutive lists of length ``n``.
++
++    The last list may be shorter than ``n``. An empty input gives ``[]``.
++    Raises ``ValueError`` if ``n`` is less than 1.
++    """
++    if n < 1:
++        raise ValueError(f"n must be at least 1, got {n}")
++    items = list(items)
++    return [items[i:i + n] for i in range(0, len(items), n)]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_chunking.py b/tests/test_chunking.py
+--- a/tests/test_chunking.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_chunking.py	2026-11-07 12:38:32.703542689 -0700
+@@ -0,0 +1,49 @@
++import pytest
++
++from shop.chunking import chunk
++
++
++def test_even_split():
++    assert chunk([1, 2, 3, 4], 2) == [[1, 2], [3, 4]]
++
++
++def test_last_chunk_shorter():
++    assert chunk([1, 2, 3, 4, 5], 2) == [[1, 2], [3, 4], [5]]
++
++
++def test_n_larger_than_list():
++    assert chunk([1, 2], 5) == [[1, 2]]
++
++
++def test_n_equal_one():
++    assert chunk(["a", "b", "c"], 1) == [["a"], ["b"], ["c"]]
++
++
++def test_n_equal_length():
++    assert chunk([1, 2, 3], 3) == [[1, 2, 3]]
++
++
++def test_empty_list_gives_empty_list():
++    assert chunk([], 3) == []
++
++
++def test_accepts_any_iterable():
++    assert chunk(range(5), 2) == [[0, 1], [2, 3], [4]]
++
++
++def test_returns_new_lists_not_input():
++    items = [1, 2, 3]
++    result = chunk(items, 2)
++    result[0].append(99)
++    assert items == [1, 2, 3]
++
++
++@pytest.mark.parametrize("n", [0, -1, -100])
++def test_invalid_n_raises(n):
++    with pytest.raises(ValueError):
++        chunk([1, 2, 3], n)
++
++
++def test_invalid_n_raises_even_for_empty_list():
++    with pytest.raises(ValueError):
++        chunk([], 0)

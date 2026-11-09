@@ -1,0 +1,69 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:38:22.252900329 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4104: pathnames: add basename_no_ext for POSIX paths
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/pathnames.py b/src/shop/ext/pathnames.py
+--- a/src/shop/ext/pathnames.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/pathnames.py	2026-11-07 12:38:13.703193085 -0700
+@@ -0,0 +1,17 @@
++"""POSIX path name helpers."""
++
++from pathlib import PurePosixPath
++
++
++def basename_no_ext(path):
++    """Return the last path component of a POSIX path without its final extension.
++
++    A trailing slash is ignored. A leading dot alone is not treated as an
++    extension, so ``'.bashrc'`` stays ``'.bashrc'``.
++
++    Ticket: PAY-4104
++
++    >>> basename_no_ext('a/b/file.tar.gz')
++    'file.tar'
++    """
++    return PurePosixPath(path).stem
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_pathnames_cases.py b/tests/test_pathnames_cases.py
+--- a/tests/test_pathnames_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_pathnames_cases.py	2026-11-07 12:38:13.705193016 -0700
+@@ -0,0 +1,33 @@
++"""Tests for the pathnames extension module.
++
++Ticket: PAY-4104
++"""
++
++import pytest
++
++from shop.ext.pathnames import basename_no_ext
++
++
++@pytest.mark.parametrize(
++    "path, expected",
++    [
++        ("a/b/file.tar.gz", "file.tar"),
++        ("a/b/file.txt", "file"),
++        ("file.txt", "file"),
++        ("file", "file"),
++        (".bashrc", ".bashrc"),
++        ("a/b/.bashrc", ".bashrc"),
++        (".hidden.txt", ".hidden"),
++        ("a/b/file.txt/", "file"),
++        ("a/b/file.txt//", "file"),
++        ("a/b/", "b"),
++        ("/abs/path/report.pdf", "report"),
++        ("/", ""),
++    ],
++)
++def test_basename_no_ext(path, expected):
++    """basename_no_ext strips the final extension and trailing slashes.
++
++    Ticket: PAY-4104
++    """
++    assert basename_no_ext(path) == expected

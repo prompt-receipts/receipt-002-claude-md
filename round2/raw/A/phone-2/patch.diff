@@ -1,0 +1,98 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:28:58.167872757 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `shop.phones.normalize_phone` for US phone normalization to `+1XXXXXXXXXX` (PAY-4107).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/phones.py b/src/shop/phones.py
+--- a/src/shop/phones.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/phones.py	2026-11-07 12:28:53.129665519 -0700
+@@ -0,0 +1,23 @@
++"""US phone number normalization (PAY-4107)."""
++
++_ASCII_DIGITS = frozenset("0123456789")
++
++
++def normalize_phone(text):
++    """Normalize a US phone number to E.164 form, ``+1XXXXXXXXXX``.
++
++    Every non-digit character is ignored. The remaining digits must be either
++    exactly 10 digits, or 11 digits starting with ``1`` (the US country code).
++    Anything else raises ``ValueError``.
++    """
++    if not isinstance(text, str):
++        raise TypeError(f"expected str, got {type(text).__name__}")
++
++    digits = "".join(c for c in text if c in _ASCII_DIGITS)
++
++    if len(digits) == 11 and digits[0] == "1":
++        digits = digits[1:]
++    elif len(digits) != 10:
++        raise ValueError(f"not a US phone number: {text!r}")
++
++    return "+1" + digits
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_phones.py b/tests/test_phones.py
+--- a/tests/test_phones.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_phones.py	2026-11-07 12:29:04.181302993 -0700
+@@ -0,0 +1,56 @@
++import pytest
++
++from shop.phones import normalize_phone
++
++EXPECTED = "+12125551234"
++
++
++@pytest.mark.parametrize(
++    "text",
++    [
++        "2125551234",
++        "212-555-1234",
++        "(212) 555-1234",
++        "212.555.1234",
++        "212 555 1234",
++        "+1 212 555 1234",
++        "12125551234",
++        "1-212-555-1234",
++        "1 (212) 555-1234",
++        "  212 555 1234  ",
++    ],
++)
++def test_normalizes_valid_numbers(text):
++    assert normalize_phone(text) == EXPECTED
++
++
++def test_output_is_plus_one_and_ten_digits():
++    result = normalize_phone("(646) 555-0100")
++    assert result == "+16465550100"
++    assert result.startswith("+1")
++    assert len(result) == 12
++
++
++@pytest.mark.parametrize(
++    "text",
++    [
++        "",
++        "555-1234",  # 7 digits
++        "212555123",  # 9 digits
++        "212555123456",  # 12 digits
++        "21255512345",  # 11 digits, not starting with 1
++        "02125551234",  # 11 digits, not starting with 1 (leading 0)
++        "+44 20 7946 0958",  # UK number, 11 digits starting with 4
++        "abc",
++        "no digits here",
++        "1 + 2",
++    ],
++)
++def test_rejects_invalid_numbers(text):
++    with pytest.raises(ValueError):
++        normalize_phone(text)
++
++
++def test_rejects_non_string():
++    with pytest.raises(TypeError):
++        normalize_phone(2125551234)

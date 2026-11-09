@@ -1,0 +1,58 @@
+{
+ "text": "I added `is_expired(issued_iso, ttl_seconds)` in `app/features/expiry.py`, with tests in `tests/test_expiry.py`. The full suite passes (9 tests, including the existing greeting test).\n\nIt returns `True` when `issued + ttl_seconds <= now`, and `False` otherwise. The current time comes from `app.clock.now()`, so tests can freeze it with `clock.set_now`.\n\nChoices I made that you didn't specify:\n- **Bad input raises `ValidationError`.** That covers a non-string timestamp, an unparseable timestamp, a timestamp with no UTC offset, and a `ttl_seconds` that isn't a number (booleans are rejected too). The project rules only allow `app.errors` exceptions.\n- **No audit event.** The function only reads state and changes nothing, so I didn't call `audit()`.\n- **Negative TTLs are allowed.** They simply mean the timestamp is already expired.\n- **Float TTLs are accepted** and treated as seconds.\n\n`python` isn't on this machine's PATH and the system Python blocks global pip installs. I ran the tests from a virtualenv at `/tmp/venv-expiry`, outside the repo.",
+ "is_error": false,
+ "cost_usd": 0.00299776,
+ "num_turns": 9,
+ "input_tokens": 14,
+ "cache_creation_tokens": 5026,
+ "cache_read_tokens": 54066,
+ "output_tokens": 2901,
+ "resolved_model": "claude-haiku-5-5",
+ "out_of_tree": [],
+ "init": {
+  "tools": [
+   "Bash",
+   "Edit",
+   "Read",
+   "Write"
+  ],
+  "mcp_servers": [],
+  "plugins": [
+   {
+    "name": "cc-plugin-agents-md",
+    "path": "builtin",
+    "source": "cc-plugin-agents-md@builtin"
+   },
+   {
+    "name": "cc-plugin-telemetry",
+    "path": "builtin",
+    "source": "cc-plugin-telemetry@builtin"
+   },
+   {
+    "name": "cc-plugin-privacy",
+    "path": "builtin",
+    "source": "cc-plugin-privacy@builtin"
+   },
+   {
+    "name": "cc-plugin-plugin-authoring",
+    "path": "builtin",
+    "source": "cc-plugin-plugin-authoring@builtin"
+   }
+  ],
+  "skills": [],
+  "agents": [
+   "claude",
+   "Explore",
+   "general-purpose",
+   "Plan",
+   "statusline-setup"
+  ],
+  "memory_paths": null,
+  "permissionMode": "default",
+  "cwd": "/tmp/pr2-2hc_a2ov/repo"
+ },
+ "model": "haiku",
+ "cli_version": "2.1.319 (Claude Code)",
+ "date": "2026-11-07",
+ "prompt": "Add a new feature called expiry to this app. It should provide is_expired(issued_iso, ttl_seconds), where issued_iso is an ISO-8601 timestamp that includes a UTC offset (like 2024-05-01T12:00:00+00:00). It returns True if issued time plus ttl_seconds is at or before the current time, otherwise False."
+}

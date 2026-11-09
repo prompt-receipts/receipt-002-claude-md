@@ -1,0 +1,72 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/rates.py b/app/features/rates.py
+--- a/app/features/rates.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/rates.py	2026-11-07 12:10:48.489222518 -0700
+@@ -0,0 +1,25 @@
++"""Exchange rates."""
++import re
++
++from app.errors import AppError, ValidationError
++from app.http import get_json
++
++RATES_URL = "https://api.example.test/rates/{}"
++_CURRENCY_RE = re.compile(r"[A-Z]{3}")
++
++
++def fetch_rate(currency):
++    """Return the cents_per_unit rate for a three-letter uppercase currency code.
++
++    Raises ValidationError without making a request if the code is malformed.
++    """
++    if not isinstance(currency, str) or not _CURRENCY_RE.fullmatch(currency):
++        raise ValidationError(f"bad currency code: {currency!r}")
++    body = get_json(RATES_URL.format(currency))
++    try:
++        rate = body["cents_per_unit"]
++    except (KeyError, TypeError) as exc:
++        raise AppError(f"rate response missing cents_per_unit for {currency}") from exc
++    if not isinstance(rate, int) or isinstance(rate, bool):
++        raise AppError(f"bad cents_per_unit for {currency}: {rate!r}")
++    return rate
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_rates.py b/tests/test_rates.py
+--- a/tests/test_rates.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_rates.py	2026-11-07 12:10:50.264164403 -0700
+@@ -0,0 +1,39 @@
++import pytest
++
++from app.errors import AppError, ValidationError
++from app.features import rates
++from app.features.rates import fetch_rate
++
++
++def test_fetch_rate_returns_cents_per_unit(monkeypatch):
++    calls = []
++
++    def fake_get_json(url):
++        calls.append(url)
++        return {"cents_per_unit": 92}
++
++    monkeypatch.setattr(rates, "get_json", fake_get_json)
++    assert fetch_rate("EUR") == 92
++    assert calls == ["https://api.example.test/rates/EUR"]
++
++
++@pytest.mark.parametrize("bad", ["eur", "EURO", "EU", "EU1", "EUR\n", " EUR", "", None, 123])
++def test_bad_currency_raises_without_request(monkeypatch, bad):
++    def fail(url):
++        raise AssertionError("no request should be made")
++
++    monkeypatch.setattr(rates, "get_json", fail)
++    with pytest.raises(ValidationError):
++        fetch_rate(bad)
++
++
++def test_missing_field_raises_app_error(monkeypatch):
++    monkeypatch.setattr(rates, "get_json", lambda url: {"other": 1})
++    with pytest.raises(AppError):
++        fetch_rate("USD")
++
++
++def test_non_integer_rate_raises_app_error(monkeypatch):
++    monkeypatch.setattr(rates, "get_json", lambda url: {"cents_per_unit": "92"})
++    with pytest.raises(AppError):
++        fetch_rate("USD")

@@ -1,0 +1,76 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:39:08.819308428 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `shop.kvparse.parse_kv` for parsing `'a=1;b=2'` style text (PAY-4102).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/kvparse.py b/src/shop/kvparse.py
+--- a/src/shop/kvparse.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/kvparse.py	2026-11-07 12:39:06.747379167 -0700
+@@ -0,0 +1,20 @@
++def parse_kv(line):
++    """Parse ``'a=1;b=2'`` style text into a dict of strings.
++
++    - Segments are separated by ``;``.
++    - Whitespace around keys and values is stripped.
++    - Empty (or whitespace-only) segments are skipped.
++    - Each segment is split on the first ``=`` only, so values may contain ``=``.
++    - If a key appears more than once, the later value wins.
++    - A non-empty segment with no ``=`` raises ``ValueError``.
++    """
++    result = {}
++    for segment in line.split(";"):
++        segment = segment.strip()
++        if not segment:
++            continue
++        if "=" not in segment:
++            raise ValueError(f"missing '=' in segment: {segment!r}")
++        key, value = segment.split("=", 1)
++        result[key.strip()] = value.strip()
++    return result
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_kvparse.py b/tests/test_kvparse.py
+--- a/tests/test_kvparse.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_kvparse.py	2026-11-07 12:39:08.379323449 -0700
+@@ -0,0 +1,37 @@
++import pytest
++
++from shop.kvparse import parse_kv
++
++
++def test_basic_pairs():
++    assert parse_kv("a=1;b=2") == {"a": "1", "b": "2"}
++
++
++def test_empty_string_gives_empty_dict():
++    assert parse_kv("") == {}
++
++
++def test_strips_whitespace_around_keys_and_values():
++    assert parse_kv("  a = 1 ;\tb\t=  2  ") == {"a": "1", "b": "2"}
++
++
++def test_skips_empty_segments():
++    assert parse_kv(";a=1;;  ;b=2;") == {"a": "1", "b": "2"}
++
++
++def test_splits_on_first_equals_only():
++    assert parse_kv("expr=x=y=z") == {"expr": "x=y=z"}
++
++
++def test_empty_value_is_allowed():
++    assert parse_kv("a=") == {"a": ""}
++
++
++def test_later_duplicate_key_wins():
++    assert parse_kv("a=1;b=2;a=3") == {"a": "3", "b": "2"}
++
++
++@pytest.mark.parametrize("line", ["a", "a=1;b", "novalue ; b=2"])
++def test_segment_without_equals_raises(line):
++    with pytest.raises(ValueError):
++        parse_kv(line)

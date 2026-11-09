@@ -1,0 +1,124 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:36:20.458086449 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4103: hashtags: add hashtags() to extract unique hashtags from text
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/hashtags.py b/src/shop/ext/hashtags.py
+--- a/src/shop/ext/hashtags.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/hashtags.py	2026-11-07 12:36:16.962207139 -0700
+@@ -0,0 +1,39 @@
++"""Extract hashtags from text."""
++
++
++def _is_tag_char(ch):
++    """Return True if ch may appear in a hashtag body.
++
++    Ticket: PAY-4103
++    """
++    return ch.isalpha() or ch.isdecimal() or ch == "_"
++
++
++def hashtags(text):
++    """Return the unique hashtags in ``text``, in order of first appearance.
++
++    A hashtag is a ``#`` followed by one or more letters, digits or
++    underscores, where the ``#`` is at the start of the text or directly
++    after whitespace. Results are lowercased and exclude the ``#``.
++    Uniqueness is case-insensitive.
++
++    Ticket: PAY-4103
++    """
++    seen = set()
++    result = []
++    # str.split() with no arguments splits on any whitespace, so every token
++    # that begins with '#' starts either at the beginning of the text or right
++    # after whitespace.
++    for token in text.split():
++        if not token.startswith("#"):
++            continue
++        body = token[1:]
++        end = 0
++        while end < len(body) and _is_tag_char(body[end]):
++            end += 1
++        tag = body[:end].lower()
++        if not tag or tag in seen:
++            continue
++        seen.add(tag)
++        result.append(tag)
++    return result
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_hashtags_cases.py b/tests/test_hashtags_cases.py
+--- a/tests/test_hashtags_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_hashtags_cases.py	2026-11-07 12:36:20.023101464 -0700
+@@ -0,0 +1,66 @@
++from shop.ext.hashtags import hashtags
++
++
++def test_empty_text_has_no_hashtags():
++    assert hashtags("") == []
++
++
++def test_no_hash_sign_returns_empty():
++    assert hashtags("just some words") == []
++
++
++def test_single_hashtag_without_hash_and_lowercased():
++    assert hashtags("#Python") == ["python"]
++
++
++def test_order_of_first_appearance_is_kept():
++    assert hashtags("#b then #a then #c") == ["b", "a", "c"]
++
++
++def test_duplicates_are_removed_keeping_first():
++    assert hashtags("#x #y #x #z #y") == ["x", "y", "z"]
++
++
++def test_uniqueness_is_case_insensitive():
++    assert hashtags("#Fun #fun #FUN #Other") == ["fun", "other"]
++
++
++def test_hash_mid_word_is_not_a_hashtag():
++    assert hashtags("a#b") == []
++    assert hashtags("foo#bar #baz") == ["baz"]
++
++
++def test_hash_at_start_of_text_counts():
++    assert hashtags("#start") == ["start"]
++
++
++def test_hash_after_whitespace_counts_for_each_whitespace_kind():
++    assert hashtags("a\t#tab\n#newline  #space") == ["tab", "newline", "space"]
++
++
++def test_digits_and_underscores_are_allowed():
++    assert hashtags("#abc_123 #_x9") == ["abc_123", "_x9"]
++
++
++def test_hashtag_stops_at_first_non_tag_character():
++    assert hashtags("#foo-bar #baz.qux #one#two") == ["foo", "baz", "one"]
++
++
++def test_bare_hash_is_ignored():
++    assert hashtags("# alone ## double #") == []
++
++
++def test_double_hash_is_ignored():
++    assert hashtags("##tag") == []
++
++
++def test_punctuation_before_hash_disqualifies_it():
++    assert hashtags("(#nope) #yes") == ["yes"]
++
++
++def test_hashtag_followed_by_punctuation():
++    assert hashtags("love it #great!") == ["great"]
++
++
++def test_unicode_letters_are_accepted():
++    assert hashtags("#Café #naïve") == ["café", "naïve"]

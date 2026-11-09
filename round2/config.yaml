@@ -1,0 +1,15 @@
+name: "receipt-002-claude-md round 2: rules the code cannot reveal"
+claim: "A CLAUDE.md file makes the AI follow your project's rules."
+model: haiku
+runs: 3
+seed: 32
+system_prompt: "(none set: the default Claude Code agent system prompt is used in both conditions)"
+tasks: tasks.yaml
+conditions:
+  A: {label: no CLAUDE.md}
+  B: {label: CLAUDE.md with the project conventions}
+limits:
+  - "One model (a small, fast one), one small fixture repo, 8 short tasks, 3 runs each (round 2)."
+  - "The conventions are invented for this fixture; real CLAUDE.md files hold different rules."
+  - "Convention checks are static (AST) checks on the files the agent added; they do not judge quality."
+  - "Says nothing about other models, large repos, or long sessions."

@@ -1,0 +1,102 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:30:51.291628603 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4105: commondir: add common_dir() returning the deepest common directory of absolute POSIX paths
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/commondir.py b/src/shop/ext/commondir.py
+--- a/src/shop/ext/commondir.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/commondir.py	2026-11-07 12:30:49.716684898 -0700
+@@ -0,0 +1,26 @@
++from pathlib import PurePosixPath
++
++
++def common_dir(paths):
++    """Return the deepest directory that contains all of the given paths.
++
++    ``paths`` is a non-empty list of absolute POSIX file paths. Comparison is
++    done on whole path components, so ``/a/bc/x`` and ``/a/bd/y`` share ``/a``.
++    The result has no trailing slash, except for the root ``/``.
++
++    Ticket: PAY-4105
++    """
++    if not paths:
++        raise ValueError("paths must be a non-empty list")
++
++    common = PurePosixPath(paths[0]).parts
++    for path in paths[1:]:
++        parts = PurePosixPath(path).parts
++        n = 0
++        for a, b in zip(common, parts):
++            if a != b:
++                break
++            n += 1
++        common = common[:n]
++
++    return str(PurePosixPath(*common))
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_commondir_cases.py b/tests/test_commondir_cases.py
+--- a/tests/test_commondir_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_commondir_cases.py	2026-11-07 12:30:49.717684863 -0700
+@@ -0,0 +1,57 @@
++import pytest
++
++from shop.ext.commondir import common_dir
++
++
++def test_shared_directory_with_whole_component_comparison():
++    """Ticket: PAY-4105"""
++    assert common_dir(["/a/bc/x", "/a/bd/y"]) == "/a"
++
++
++def test_common_directory_of_siblings():
++    """Ticket: PAY-4105"""
++    assert common_dir(["/srv/app/one.py", "/srv/app/two.py"]) == "/srv/app"
++
++
++def test_only_root_in_common_returns_root():
++    """Ticket: PAY-4105"""
++    assert common_dir(["/a/x", "/b/y"]) == "/"
++
++
++def test_no_trailing_slash_on_result():
++    """Ticket: PAY-4105"""
++    result = common_dir(["/a/b/c", "/a/b/d/e"])
++    assert result == "/a/b"
++    assert not result.endswith("/")
++
++
++def test_single_path_returns_itself():
++    """Ticket: PAY-4105"""
++    assert common_dir(["/a/b/c"]) == "/a/b/c"
++
++
++def test_identical_paths_return_the_path():
++    """Ticket: PAY-4105"""
++    assert common_dir(["/a/b", "/a/b"]) == "/a/b"
++
++
++def test_one_path_is_prefix_component_of_another():
++    """Ticket: PAY-4105"""
++    assert common_dir(["/a/b", "/a/b/c/d"]) == "/a/b"
++
++
++def test_root_only_input():
++    """Ticket: PAY-4105"""
++    assert common_dir(["/", "/x/y"]) == "/"
++
++
++def test_many_paths():
++    """Ticket: PAY-4105"""
++    paths = ["/data/x/1.txt", "/data/x/y/2.txt", "/data/x/z/3.txt", "/data/w"]
++    assert common_dir(paths) == "/data"
++
++
++def test_empty_list_raises_value_error():
++    """Ticket: PAY-4105"""
++    with pytest.raises(ValueError):
++        common_dir([])

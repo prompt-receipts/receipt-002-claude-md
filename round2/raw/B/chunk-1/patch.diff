@@ -1,0 +1,87 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:28:19.477769383 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- PAY-4106: chunking: add chunk(items, n) to split lists into consecutive fixed-size chunks
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/ext/chunking.py b/src/shop/ext/chunking.py
+--- a/src/shop/ext/chunking.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/ext/chunking.py	2026-11-07 12:28:18.128813632 -0700
+@@ -0,0 +1,25 @@
++"""Helpers for splitting sequences into fixed-size chunks."""
++
++
++def chunk(items, n):
++    """Split ``items`` into consecutive lists of length ``n``.
++
++    The final list may be shorter than ``n`` if there are not enough items to
++    fill it. An empty input produces an empty result.
++
++    Ticket: PAY-4106
++
++    Args:
++        items: The list (or other sequence) to split.
++        n: The maximum length of each chunk. Must be at least 1.
++
++    Returns:
++        A list of lists, each containing up to ``n`` consecutive items.
++
++    Raises:
++        ValueError: If ``n`` is less than 1.
++    """
++    if n < 1:
++        raise ValueError(f"chunk size must be at least 1, got {n}")
++    values = list(items)
++    return [values[start:start + n] for start in range(0, len(values), n)]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_chunking_cases.py b/tests/test_chunking_cases.py
+--- a/tests/test_chunking_cases.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_chunking_cases.py	2026-11-07 12:28:18.129813599 -0700
+@@ -0,0 +1,43 @@
++import pytest
++
++from shop.ext.chunking import chunk
++
++
++def test_even_split():
++    assert chunk([1, 2, 3, 4], 2) == [[1, 2], [3, 4]]
++
++
++def test_last_chunk_may_be_shorter():
++    assert chunk([1, 2, 3, 4, 5], 2) == [[1, 2], [3, 4], [5]]
++
++
++def test_chunk_size_larger_than_list():
++    assert chunk([1, 2, 3], 10) == [[1, 2, 3]]
++
++
++def test_chunk_size_one():
++    assert chunk(["a", "b"], 1) == [["a"], ["b"]]
++
++
++def test_empty_list_gives_empty_result():
++    assert chunk([], 3) == []
++
++
++def test_zero_chunk_size_raises():
++    with pytest.raises(ValueError):
++        chunk([1, 2, 3], 0)
++
++
++def test_negative_chunk_size_raises():
++    with pytest.raises(ValueError):
++        chunk([1, 2, 3], -2)
++
++
++def test_tuple_input_returns_lists():
++    assert chunk((1, 2, 3), 2) == [[1, 2], [3]]
++
++
++def test_input_is_not_modified():
++    items = [1, 2, 3]
++    chunk(items, 2)
++    assert items == [1, 2, 3]

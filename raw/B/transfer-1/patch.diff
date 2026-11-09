@@ -1,0 +1,103 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/transfers.py b/app/features/transfers.py
+--- a/app/features/transfers.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/transfers.py	2026-11-07 12:08:17.286171461 -0700
+@@ -0,0 +1,34 @@
++"""Move money between accounts."""
++from app.audit import audit
++from app.errors import InsufficientFunds, NotFoundError, ValidationError
++from app.money import fmt_money, parse_money
++
++
++def transfer(accounts, src, dst, amount):
++    """Move `amount` (a dollar string such as '5.25') from `src` to `dst`.
++
++    `accounts` maps account id -> balance in integer cents and is updated in
++    place. All checks run before any balance changes, so a failed transfer
++    leaves `accounts` untouched.
++    """
++    if src not in accounts:
++        raise NotFoundError(f"unknown source account: {src!r}")
++    if dst not in accounts:
++        raise NotFoundError(f"unknown destination account: {dst!r}")
++    if src == dst:
++        raise ValidationError("source and destination must differ")
++
++    cents = parse_money(amount)
++    if cents <= 0:
++        raise ValidationError(f"amount must be positive: {amount!r}")
++
++    if accounts[src] < cents:
++        raise InsufficientFunds(
++            f"account {src!r} has {fmt_money(accounts[src])}, "
++            f"needs {fmt_money(cents)}"
++        )
++
++    accounts[src] -= cents
++    accounts[dst] += cents
++    audit("transfer", src=src, dst=dst, amount_cents=cents)
++    return cents
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_transfers.py b/tests/test_transfers.py
+--- a/tests/test_transfers.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_transfers.py	2026-11-07 12:08:19.955084140 -0700
+@@ -0,0 +1,61 @@
++import pytest
++
++from app.audit import EVENTS
++from app.errors import AppError, InsufficientFunds, NotFoundError, ValidationError
++from app.features.transfers import transfer
++
++
++@pytest.fixture(autouse=True)
++def _clear_audit():
++    EVENTS.clear()
++    yield
++    EVENTS.clear()
++
++
++def test_moves_money_and_records_transfer():
++    accounts = {"a": 1000, "b": 50}
++    assert transfer(accounts, "a", "b", "5.25") == 525
++    assert accounts == {"a": 475, "b": 575}
++    assert EVENTS == [
++        {"event": "transfer", "src": "a", "dst": "b", "amount_cents": 525}
++    ]
++
++
++def test_full_balance_allowed():
++    accounts = {"a": 500, "b": 0}
++    transfer(accounts, "a", "b", "5")
++    assert accounts == {"a": 0, "b": 500}
++
++
++@pytest.mark.parametrize("src,dst", [("x", "b"), ("a", "x")])
++def test_unknown_account_raises_and_changes_nothing(src, dst):
++    accounts = {"a": 1000, "b": 50}
++    with pytest.raises(NotFoundError):
++        transfer(accounts, src, dst, "1.00")
++    assert accounts == {"a": 1000, "b": 50}
++    assert EVENTS == []
++
++
++def test_same_account_rejected():
++    accounts = {"a": 1000}
++    with pytest.raises(ValidationError):
++        transfer(accounts, "a", "a", "1.00")
++    assert accounts == {"a": 1000}
++    assert EVENTS == []
++
++
++@pytest.mark.parametrize("amount", ["0", "0.00", "-1.00", "abc", "1.234", "", "1,00"])
++def test_invalid_amount_rejected(amount):
++    accounts = {"a": 1000, "b": 50}
++    with pytest.raises(AppError):
++        transfer(accounts, "a", "b", amount)
++    assert accounts == {"a": 1000, "b": 50}
++    assert EVENTS == []
++
++
++def test_insufficient_funds_changes_nothing():
++    accounts = {"a": 500, "b": 50}
++    with pytest.raises(InsufficientFunds):
++        transfer(accounts, "a", "b", "5.01")
++    assert accounts == {"a": 500, "b": 50}
++    assert EVENTS == []

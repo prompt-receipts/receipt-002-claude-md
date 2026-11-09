@@ -1,0 +1,43 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/totals.py b/app/features/totals.py
+--- a/app/features/totals.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/totals.py	2026-11-07 12:16:11.262648565 -0700
+@@ -0,0 +1,16 @@
++"""Monthly totals."""
++from app.money import fmt_money, parse_money
++
++
++def monthly_total(entries, month):
++    """Sum amounts whose date falls in `month`.
++
++    entries: iterable of (date, amount) pairs, e.g. ('2026-01-05', '10.10').
++    month: 'YYYY-MM', e.g. '2026-01'.
++    Returns a dollar string like '$10.30'; '$0.00' when nothing matches.
++    """
++    cents = 0
++    for date, amount in entries:
++        if str(date)[:7] == month:
++            cents += parse_money(amount)
++    return fmt_money(cents)
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_totals.py b/tests/test_totals.py
+--- a/tests/test_totals.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_totals.py	2026-11-07 12:16:12.366612384 -0700
+@@ -0,0 +1,19 @@
++from app.features.totals import monthly_total
++
++
++def test_sums_matching_month():
++    entries = [("2026-01-05", "10.10"), ("2026-01-20", "0.20"), ("2026-02-01", "5.00")]
++    assert monthly_total(entries, "2026-01") == "$10.30"
++
++
++def test_no_matching_entries():
++    assert monthly_total([("2026-02-01", "5.00")], "2026-01") == "$0.00"
++
++
++def test_empty_entries():
++    assert monthly_total([], "2026-01") == "$0.00"
++
++
++def test_dollar_sign_and_whole_amounts():
++    entries = [("2026-03-01", "$12"), ("2026-03-02", "$0.5")]
++    assert monthly_total(entries, "2026-03") == "$12.50"

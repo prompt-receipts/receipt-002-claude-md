@@ -1,0 +1,119 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:35:39.660497008 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `shop.commondir.common_dir(paths)` to return the deepest directory shared by a list of absolute POSIX paths (PAY-4105).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/commondir.py b/src/shop/commondir.py
+--- a/src/shop/commondir.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/commondir.py	2026-11-07 12:35:36.577603787 -0700
+@@ -0,0 +1,33 @@
++"""Find the deepest directory shared by a set of absolute POSIX paths."""
++
++
++def common_dir(paths):
++    """Return the deepest directory containing all of ``paths``.
++
++    ``paths`` is a non-empty list of absolute POSIX paths. Comparison is done
++    on whole path components, so '/a/bc/x' and '/a/bd/y' share '/a'.
++
++    The result never has a trailing slash, except for the root '/' itself.
++
++    Raises ValueError if ``paths`` is empty or contains a relative path.
++    """
++    paths = list(paths)
++    if not paths:
++        raise ValueError("paths must be a non-empty list")
++
++    split_paths = []
++    for path in paths:
++        if not path.startswith("/"):
++            raise ValueError(f"path must be absolute: {path!r}")
++        # Empty components come from repeated or trailing slashes.
++        split_paths.append([part for part in path.split("/") if part])
++
++    common = []
++    for components in zip(*split_paths):
++        first = components[0]
++        if all(part == first for part in components):
++            common.append(first)
++        else:
++            break
++
++    return "/" + "/".join(common)
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_commondir.py b/tests/test_commondir.py
+--- a/tests/test_commondir.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_commondir.py	2026-11-07 12:35:39.207512696 -0700
+@@ -0,0 +1,67 @@
++import pytest
++
++from shop.commondir import common_dir
++
++
++def test_siblings_share_parent():
++    assert common_dir(["/a/b/x", "/a/b/y"]) == "/a/b"
++
++
++def test_whole_components_only():
++    assert common_dir(["/a/bc/x", "/a/bd/y"]) == "/a"
++
++
++def test_no_shared_component_returns_root():
++    assert common_dir(["/a/x", "/b/y"]) == "/"
++
++
++def test_single_path_returns_itself():
++    assert common_dir(["/a/b/c"]) == "/a/b/c"
++
++
++def test_one_path_is_prefix_of_another():
++    assert common_dir(["/a/b", "/a/b/c/d"]) == "/a/b"
++
++
++def test_identical_paths():
++    assert common_dir(["/a/b/c", "/a/b/c"]) == "/a/b/c"
++
++
++def test_many_paths():
++    paths = ["/srv/app/x/1.txt", "/srv/app/y/2.txt", "/srv/app/z"]
++    assert common_dir(paths) == "/srv/app"
++
++
++def test_root_path_alone():
++    assert common_dir(["/"]) == "/"
++
++
++def test_root_and_nested_path():
++    assert common_dir(["/", "/a/b"]) == "/"
++
++
++def test_no_trailing_slash_on_result():
++    assert common_dir(["/a/b/", "/a/b/c"]) == "/a/b"
++
++
++def test_repeated_slashes_are_collapsed():
++    assert common_dir(["/a//b/x", "/a/b/y"]) == "/a/b"
++
++
++def test_order_does_not_matter():
++    paths = ["/a/b/x", "/a/c/y", "/a/b/z/w"]
++    assert common_dir(paths) == common_dir(list(reversed(paths))) == "/a"
++
++
++def test_accepts_any_iterable():
++    assert common_dir(iter(["/a/b/x", "/a/b/y"])) == "/a/b"
++
++
++def test_empty_list_raises():
++    with pytest.raises(ValueError):
++        common_dir([])
++
++
++def test_relative_path_raises():
++    with pytest.raises(ValueError):
++        common_dir(["/a/b", "c/d"])

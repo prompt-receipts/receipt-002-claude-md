@@ -1,0 +1,71 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:30:09.053142841 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `shop.pathnames.basename_no_ext` for POSIX paths (PAY-4104).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/pathnames.py b/src/shop/pathnames.py
+--- a/src/shop/pathnames.py	1969-12-31 17:00:00.000000000 -0700
++++ b/src/shop/pathnames.py	2026-11-07 12:30:06.982217327 -0700
+@@ -0,0 +1,20 @@
++"""POSIX path helpers (PAY-4104)."""
++
++
++def basename_no_ext(path):
++    """Return the last path component of a POSIX path without its final extension.
++
++    A trailing slash is ignored. Leading dots are not treated as an extension,
++    so ``'.bashrc'`` stays ``'.bashrc'``; likewise ``'..'`` is returned unchanged.
++
++    >>> basename_no_ext('a/b/file.tar.gz')
++    'file.tar'
++    >>> basename_no_ext('dir/.bashrc')
++    '.bashrc'
++    """
++    name = path.rstrip("/").rsplit("/", 1)[-1]
++    body = name.lstrip(".")  # leading dots belong to the name, not an extension
++    idx = body.rfind(".")
++    if idx < 0:
++        return name
++    return name[: len(name) - len(body) + idx]
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_pathnames.py b/tests/test_pathnames.py
+--- a/tests/test_pathnames.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_pathnames.py	2026-11-07 12:30:08.633157946 -0700
+@@ -0,0 +1,32 @@
++import pytest
++
++from shop.pathnames import basename_no_ext
++
++
++@pytest.mark.parametrize(
++    "path, expected",
++    [
++        ("a/b/file.tar.gz", "file.tar"),
++        ("file.txt", "file"),
++        ("/abs/path/report.pdf", "report"),
++        ("archive.tar.gz", "archive.tar"),
++        ("a/b/file.tar.gz/", "file.tar"),
++        ("a/b/file.txt//", "file"),
++        ("a/b/noext", "noext"),
++        ("noext", "noext"),
++        ("a/b/.bashrc", ".bashrc"),
++        (".bashrc", ".bashrc"),
++        (".bashrc.bak", ".bashrc"),
++        ("..", ".."),
++        ("...", "..."),
++        ("..foo", "..foo"),
++        (".a.b", ".a"),
++        ("dir.d/file", "file"),
++        ("dir.d/", "dir"),
++        ("file.", "file"),
++        ("/", ""),
++        ("", ""),
++    ],
++)
++def test_basename_no_ext(path, expected):
++    assert basename_no_ext(path) == expected

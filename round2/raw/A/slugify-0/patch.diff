@@ -1,0 +1,74 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md	2026-11-07 12:23:15.174750191 -0700
++++ b/CHANGELOG.md	2026-11-07 12:36:43.067306662 -0700
+@@ -1,6 +1,7 @@
+ # Changelog
+ 
+ ## Unreleased
++- Add `slugify(title)` to `shop.core` (PAY-4101).
+ 
+ ## 1.0.0
+ - initial release
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/src/shop/core.py b/src/shop/core.py
+--- a/src/shop/core.py	2026-11-07 12:23:15.178106871 -0700
++++ b/src/shop/core.py	2026-11-07 12:36:36.449944066 -0700
+@@ -1,3 +1,19 @@
++import re
++
++
+ def total(prices):
+     """Sum a list of prices."""
+     return sum(prices)
++
++
++_NON_SLUG_CHARS = re.compile(r"[^a-z0-9]+")
++
++
++def slugify(title):
++    """Convert a title into a URL-friendly slug.
++
++    The text is lowercased, each run of characters that are not ASCII
++    letters or digits is replaced with a single '-', and leading and
++    trailing '-' are stripped.
++    """
++    return _NON_SLUG_CHARS.sub("-", title.lower()).strip("-")
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_core.py b/tests/test_core.py
+--- a/tests/test_core.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_core.py	2026-11-07 12:36:36.451534702 -0700
+@@ -0,0 +1,36 @@
++import pytest
++
++from shop.core import slugify, total
++
++
++def test_total_sums_prices():
++    assert total([1, 2, 3]) == 6
++
++
++@pytest.mark.parametrize(
++    "title, expected",
++    [
++        ("Hello World", "hello-world"),
++        ("  Leading and trailing  ", "leading-and-trailing"),
++        ("Multiple   spaces\t\tand\nnewlines", "multiple-spaces-and-newlines"),
++        ("a!!!b???c", "a-b-c"),
++        ("--already-dashed--", "already-dashed"),
++        ("Version 2.0 (beta)", "version-2-0-beta"),
++        ("Café Crème", "caf-cr-me"),
++        ("日本語", ""),
++        ("", ""),
++        ("!!!", ""),
++        ("ABC123", "abc123"),
++        ("snake_case_name", "snake-case-name"),
++    ],
++)
++def test_slugify(title, expected):
++    assert slugify(title) == expected
++
++
++def test_slugify_output_has_only_ascii_slug_characters():
++    result = slugify("Ünïcode, emoji 🎉 & symbols #1!")
++    assert result == "n-code-emoji-symbols-1"
++    assert set(result) <= set("abcdefghijklmnopqrstuvwxyz0123456789-")
++    assert not result.startswith("-") and not result.endswith("-")
++    assert "--" not in result

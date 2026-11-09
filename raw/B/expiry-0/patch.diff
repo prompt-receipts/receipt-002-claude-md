@@ -1,0 +1,93 @@
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/app/features/expiry.py b/app/features/expiry.py
+--- a/app/features/expiry.py	1969-12-31 17:00:00.000000000 -0700
++++ b/app/features/expiry.py	2026-11-07 12:19:11.142752102 -0700
+@@ -0,0 +1,27 @@
++"""Expiry checks for issued timestamps."""
++from datetime import datetime, timedelta
++
++from app.clock import now
++from app.errors import ValidationError
++
++
++def is_expired(issued_iso, ttl_seconds):
++    """Return True if issued time + ttl_seconds is at or before the current time.
++
++    issued_iso must be an ISO-8601 timestamp with a UTC offset,
++    e.g. "2024-05-01T12:00:00+00:00".
++    """
++    if isinstance(ttl_seconds, bool) or not isinstance(ttl_seconds, (int, float)):
++        raise ValidationError("ttl_seconds must be a number")
++
++    if not isinstance(issued_iso, str):
++        raise ValidationError("issued_iso must be an ISO-8601 string")
++    try:
++        issued = datetime.fromisoformat(issued_iso)
++    except ValueError as exc:
++        raise ValidationError(f"invalid ISO-8601 timestamp: {issued_iso!r}") from exc
++    if issued.tzinfo is None or issued.utcoffset() is None:
++        raise ValidationError("issued_iso must include a UTC offset")
++
++    expires_at = issued + timedelta(seconds=ttl_seconds)
++    return expires_at <= now()
+diff -ruN '--exclude=__pycache__' '--exclude=.pytest_cache' '--exclude=*.pyc' a/tests/test_expiry.py b/tests/test_expiry.py
+--- a/tests/test_expiry.py	1969-12-31 17:00:00.000000000 -0700
++++ b/tests/test_expiry.py	2026-11-07 12:19:13.769665978 -0700
+@@ -0,0 +1,58 @@
++import pytest
++
++from app import clock
++from app.errors import ValidationError
++from app.features.expiry import is_expired
++
++
++@pytest.fixture
++def frozen():
++    clock.set_now(None)
++    yield lambda dt: clock.set_now(dt)
++    clock.set_now(None)
++
++
++def test_not_expired_before_ttl(frozen):
++    from datetime import datetime, timezone
++
++    frozen(datetime(2024, 5, 1, 12, 59, 59, tzinfo=timezone.utc))
++    assert is_expired("2024-05-01T12:00:00+00:00", 3600) is False
++
++
++def test_expired_exactly_at_ttl(frozen):
++    from datetime import datetime, timezone
++
++    frozen(datetime(2024, 5, 1, 13, 0, 0, tzinfo=timezone.utc))
++    assert is_expired("2024-05-01T12:00:00+00:00", 3600) is True
++
++
++def test_expired_after_ttl(frozen):
++    from datetime import datetime, timezone
++
++    frozen(datetime(2024, 5, 1, 14, 0, 0, tzinfo=timezone.utc))
++    assert is_expired("2024-05-01T12:00:00+00:00", 3600) is True
++
++
++def test_offset_is_respected(frozen):
++    from datetime import datetime, timezone
++
++    # 12:00 at +02:00 is 10:00 UTC; plus 1h is 11:00 UTC.
++    frozen(datetime(2024, 5, 1, 10, 59, 0, tzinfo=timezone.utc))
++    assert is_expired("2024-05-01T12:00:00+02:00", 3600) is False
++    frozen(datetime(2024, 5, 1, 11, 0, 0, tzinfo=timezone.utc))
++    assert is_expired("2024-05-01T12:00:00+02:00", 3600) is True
++
++
++def test_naive_timestamp_rejected(frozen):
++    with pytest.raises(ValidationError):
++        is_expired("2024-05-01T12:00:00", 60)
++
++
++def test_bad_timestamp_rejected(frozen):
++    with pytest.raises(ValidationError):
++        is_expired("not a date", 60)
++
++
++def test_bad_ttl_rejected(frozen):
++    with pytest.raises(ValidationError):
++        is_expired("2024-05-01T12:00:00+00:00", "60")
